@@ -202,7 +202,7 @@ export function TokenField({
                 {option.kind === 'address' ? (
                   <>
                     <span className="t-ui text-ink">Use this contract address</span>
-                    <span className="t-meta">{shortAddress(option.address)}</span>
+                    <span className="t-meta !text-ink-soft">{shortAddress(option.address)}</span>
                   </>
                 ) : (
                   <>
@@ -210,7 +210,9 @@ export function TokenField({
                       <span className="font-medium">${option.hit.symbol}</span>
                       <span className="text-ink-soft"> {option.hit.name}</span>
                     </span>
-                    <span className="t-meta shrink-0">{shortAddress(option.hit.address)}</span>
+                    <span className="t-meta shrink-0 !text-ink-soft">
+                      {shortAddress(option.hit.address)}
+                    </span>
                   </>
                 )}
               </li>

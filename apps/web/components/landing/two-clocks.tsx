@@ -81,7 +81,7 @@ export function TwoClocks({ receipt }: { receipt: PublicReceipt }) {
                   className={`bg-time-wash px-5 py-6 text-time-deep md:px-7 ${reveal(step >= 2)}`}
                 >
                   <p className="t-ui font-medium">As of {date}</p>
-                  <p className="t-meta mt-4 !text-current opacity-70">Support</p>
+                  <p className="t-meta mt-4 !text-current">Support</p>
                   <p className="text-[32px] leading-none md:text-[40px]">
                     <SupportWord state={receipt.comparison.asof_support} />
                   </p>

@@ -115,7 +115,7 @@ export default async function ReceiptPage({ params }: Props) {
   return (
     <article>
       <div className="border-b border-rule bg-band">
-        <p className="page t-meta flex flex-wrap gap-x-3 gap-y-1 py-3">
+        <p className="page t-meta flex flex-wrap gap-x-3 gap-y-1 py-3 !text-ink-soft">
           <span className="font-medium text-ink">
             {fixture ? 'FIXTURE · SYNTHETIC DATA' : 'REPLAY'}
           </span>

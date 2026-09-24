@@ -130,7 +130,7 @@ function Side({
         <Pending status={pending} />
       ) : (
         <div className={resolved ? 'animate-resolve' : ''}>
-          <p className="t-meta !text-current opacity-70">Support</p>
+          <p className="t-meta !text-current">Support</p>
           <p className="mt-1 text-[40px] leading-none md:text-[48px]">
             <SupportWord state={support} />
           </p>
@@ -223,7 +223,7 @@ function VerdictBand({ receipt }: { receipt: PublicReceipt | null }) {
   )
   return (
     <div className={`border-t border-rule px-5 py-7 md:px-8 md:py-9 ${style.wash}`}>
-      <p className="t-meta">Verdict</p>
+      <p className="t-meta !text-ink-soft">Verdict</p>
       <p className="animate-stamp mt-1 text-[40px] leading-none md:text-[56px]">
         <VerdictWord verdict={receipt.verdict} />
       </p>
