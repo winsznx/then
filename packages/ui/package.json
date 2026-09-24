@@ -3,11 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./tokens.css": "./src/tokens.css"
   },
   "peerDependencies": {
     "react": "^19"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "react": "19.2.8"
   }
 }

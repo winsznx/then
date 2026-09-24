@@ -46,7 +46,12 @@ export function Wordmark({ ink = color.ink0, mono = false, title = 'THEN', ...pr
  * Date Cut micro mark: two ledger lines, one vertical cut, and a marker that sits on the lower
  * line before the cut and on the upper line after it. Membership changes; the timeline does not.
  */
-export function DateCutMark({ ink = color.ink0, mono = false, title = 'THEN', ...props }: MarkProps) {
+export function DateCutMark({
+  ink = color.ink0,
+  mono = false,
+  title = 'THEN',
+  ...props
+}: MarkProps) {
   const cut = mono ? ink : color.timeBlue
   return (
     <svg viewBox="0 0 24 24" role="img" aria-label={title} {...props}>
@@ -57,7 +62,15 @@ export function DateCutMark({ ink = color.ink0, mono = false, title = 'THEN', ..
       </g>
       <rect x="5" y="14" width="4" height="4" fill={ink} />
       <rect x="15" y="6" width="4" height="4" fill={ink} />
-      <line x1="12" y1="2.5" x2="12" y2="21.5" stroke={cut} strokeWidth="1.5" strokeLinecap="square" />
+      <line
+        x1="12"
+        y1="2.5"
+        x2="12"
+        y2="21.5"
+        stroke={cut}
+        strokeWidth="1.5"
+        strokeLinecap="square"
+      />
     </svg>
   )
 }
