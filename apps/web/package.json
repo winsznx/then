@@ -10,7 +10,7 @@
     "lint": "eslint",
     "test:e2e": "playwright test",
     "dev:cf": "THEN_BUILD_TARGET=cloudflare vinext dev --port 3001",
-    "build:cf": "THEN_ENV_FILE=none THEN_BUILD_TARGET=cloudflare vinext build",
+    "build:cf": "THEN_ENV_FILE=none THEN_BUILD_TARGET=cloudflare vinext build && THEN_ENV_FILE=none next typegen",
     "preview:cf": "wrangler dev --config dist/server/wrangler.json",
     "deploy:cf": "pnpm build:cf && wrangler deploy --config dist/server/wrangler.json"
   },
