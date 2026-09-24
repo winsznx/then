@@ -1,7 +1,6 @@
 import {
   REASONS,
   VERDICT_HEADLINES,
-  claimSentence,
   decide,
   type PublicReceipt,
   type ReasonCode,
@@ -11,6 +10,7 @@ import {
 import { EvidenceStrip } from '@/components/receipt/evidence-strip'
 import { SupportWord, VERDICT_STYLE, VerdictWord } from '@/components/verdict/verdict'
 import { chainName, claimTypeName, formatDay, formatStamp } from '@/lib/format'
+import { ClaimSentence } from '@/components/verdict/claim-sentence'
 
 export interface DisplayClaim {
   claim_type: PublicReceipt['claim']['claim_type']
@@ -70,7 +70,9 @@ function windowLabel(claim: DisplayClaim): string {
 function ClaimBar({ claim }: { claim: DisplayClaim }) {
   return (
     <div className="border-b border-rule px-5 py-5 md:px-8 md:py-6">
-      <p className="t-h3 text-ink">{claimSentence(claim)}</p>
+      <p className="t-h3 text-ink">
+        <ClaimSentence claim={claim} />
+      </p>
       <p className="t-meta mt-2">
         {chainName(claim.chain)} · {windowLabel(claim)} (UTC) · {claimTypeName(claim.claim_type)}
       </p>
@@ -149,12 +151,15 @@ export function TemporalComparator({
   state,
   headingLevel = 2,
   showVerdict = true,
+  showEvidence = true,
   footer,
 }: {
   state: ComparatorState
   headingLevel?: 2 | 3
   /** The receipt page states the verdict in its own header. */
   showVerdict?: boolean
+  /** The landing hero keeps the comparison compact; the receipt holds the evidence detail. */
+  showEvidence?: boolean
   footer?: React.ReactNode
 }) {
   const claim: DisplayClaim = state.kind === 'result' ? state.receipt.claim : state.claim
@@ -195,7 +200,7 @@ export function TemporalComparator({
         <div aria-hidden="true" className="h-[2px] bg-time md:hidden max-md:order-2" />
       </div>
       {showVerdict ? <VerdictBand receipt={receipt} /> : null}
-      {receipt ? <EvidenceStrip receipt={receipt} /> : null}
+      {receipt && showEvidence ? <EvidenceStrip receipt={receipt} /> : null}
       <ReceiptLine receipt={receipt} mode={state.kind === 'result' ? state.mode : null} />
       {footer ? <div className="border-t border-rule">{footer}</div> : null}
     </article>

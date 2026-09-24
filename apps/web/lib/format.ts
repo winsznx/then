@@ -17,7 +17,7 @@ export function formatStamp(iso: string): string {
 }
 
 export function chainName(chain: string): string {
-  return CHAIN_DISPLAY[chain as Chain] ?? chain
+  return CHAIN_DISPLAY[chain as Chain] ?? chain.charAt(0).toUpperCase() + chain.slice(1)
 }
 
 export function claimTypeName(type: string): string {

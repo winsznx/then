@@ -35,7 +35,7 @@ export function SiteFooter({ githubUrl }: { githubUrl: string }) {
     <footer className="relative mt-auto border-t border-rule-strong bg-canvas">
       <div
         aria-hidden="true"
-        className="absolute top-0 bottom-0 left-[calc(var(--inset)+33.333%)] hidden w-[2px] bg-time md:block"
+        className="cut-x absolute top-0 bottom-0 hidden w-[2px] bg-time md:block"
       />
       <div className="page grid gap-12 py-16 md:grid-cols-12 md:py-24">
         <div className="md:col-span-5">

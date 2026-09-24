@@ -208,6 +208,115 @@
     max-width: var(--reading-max);
   }
 
+  .doc > section + section {
+    margin-top: 4rem;
+  }
+
+  .doc h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--t-h3);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: var(--ink-0);
+  }
+
+  .doc h3 {
+    margin-top: 2rem;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-0);
+  }
+
+  .doc h2 + *,
+  .doc h3 + * {
+    margin-top: 0.75rem;
+  }
+
+  .doc p,
+  .doc li {
+    color: var(--ink-1);
+  }
+
+  .doc p + p,
+  .doc p + ul,
+  .doc p + ol,
+  .doc ul + p,
+  .doc ol + p,
+  .doc p + table,
+  .doc table + p {
+    margin-top: 1rem;
+  }
+
+  .doc ul > li,
+  .doc ol > li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .doc ul > li + li,
+  .doc ol > li + li {
+    margin-top: 0.5rem;
+  }
+
+  .doc ul > li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.8em;
+    width: 0.75rem;
+    height: 1px;
+    background: var(--ink-2);
+  }
+
+  .doc ol {
+    counter-reset: step;
+  }
+
+  .doc ol > li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--ink-2);
+  }
+
+  .doc a {
+    color: var(--ink-0);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+  }
+
+  .doc a:hover {
+    text-decoration-color: var(--ink-0);
+  }
+
+  .doc code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    color: var(--ink-0);
+  }
+
+  .doc strong {
+    font-weight: 600;
+    color: var(--ink-0);
+  }
+
+  .section-y {
+    padding-block: calc(var(--section-gap-lg) / 2);
+  }
+
+  /* The Date Cut's horizontal position: one third into the page's content column, at any width. */
+  .cut-x {
+    left: calc(
+      max(0px, (100% - var(--page-max)) / 2) + var(--inset) +
+        (min(100%, var(--page-max)) - 2 * var(--inset)) / 3
+    );
+  }
+
   .link-quiet {
     text-decoration: none;
     background-image: linear-gradient(currentColor, currentColor);
@@ -305,6 +414,25 @@
 
   .animate-pending {
     animation: pulse-line 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes marker-rise {
+  from {
+    transform: translateY(90px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .label-moved-marker {
+      animation: marker-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 50%;
+    }
   }
 }
 

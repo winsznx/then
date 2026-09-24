@@ -1,7 +1,7 @@
 'use client'
 
 import type { ChallengePrompt, ChallengeStats, Reveal } from '@then/challenge'
-import { VERDICTS, VERDICT_HEADLINES, claimSentence, hashCanonical, type Verdict } from '@then/core'
+import { VERDICTS, VERDICT_HEADLINES, hashCanonical, type Verdict } from '@then/core'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
@@ -10,6 +10,7 @@ import { VERDICT_MEANING, VERDICT_STYLE, VerdictWord } from '@/components/verdic
 import { api } from '@/lib/client/api'
 import { track } from '@/lib/client/track'
 import { chainName, claimTypeName, formatDay } from '@/lib/format'
+import { ClaimSentence } from '@/components/verdict/claim-sentence'
 import { StatsLedger } from './stats-ledger'
 
 interface GuessResponse {
@@ -112,8 +113,8 @@ export function ChallengeGame({
         </footer>
       </blockquote>
       <p className="t-meta mt-6">
-        THEN checks: {claimSentence({ ...claim, token_symbol: claim.token_symbol ?? undefined })} ·{' '}
-        {chainName(claim.chain)} · {formatDay(claim.as_of_date)}
+        THEN checks: <ClaimSentence claim={claim} /> · {chainName(claim.chain)} ·{' '}
+        {formatDay(claim.as_of_date)}
         {claim.window_hours > 24 ? ` (${claim.window_hours / 24}-day window)` : ''} ·{' '}
         {claimTypeName(claim.claim_type)}
       </p>

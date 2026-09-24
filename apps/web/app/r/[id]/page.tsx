@@ -9,6 +9,7 @@ import { RestampAction } from '@/components/receipt/restamp-action'
 import { VERDICT_STYLE, VerdictWord } from '@/components/verdict/verdict'
 import { chainName, formatDay, formatStamp, usdFull } from '@/lib/format'
 import { loadReceiptView, type RestampEntry } from '@/lib/server/receipts'
+import { ClaimSentence } from '@/components/verdict/claim-sentence'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -154,7 +155,9 @@ export default async function ReceiptPage({ params }: Props) {
               <VerdictWord verdict={receipt.verdict} />
             </p>
             <div className={`mt-5 h-px w-full max-w-[320px] ${style.rule}`} aria-hidden="true" />
-            <h1 className="t-h2 mt-6 max-w-[20ch]">{claimSentence(receipt.claim)}</h1>
+            <h1 className="t-h2 mt-6 max-w-[20ch]">
+              <ClaimSentence claim={receipt.claim} />
+            </h1>
             <p className="t-lead mt-5 max-w-[56ch]">{VERDICT_HEADLINES[receipt.verdict]}</p>
             <p className="t-ui mt-2 max-w-[64ch] text-ink-soft">
               {receipt.comparison.public_explanation}

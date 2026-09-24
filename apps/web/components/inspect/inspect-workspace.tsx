@@ -2,7 +2,6 @@
 
 import {
   VERDICT_HEADLINES,
-  claimSentence,
   decide,
   type ClaimInput,
   type PublicReceipt,
@@ -15,6 +14,7 @@ import { TradePanel } from '@/components/receipt/trade-panel'
 import { api } from '@/lib/client/api'
 import { track } from '@/lib/client/track'
 import { formatStamp } from '@/lib/format'
+import { ClaimSentence } from '@/components/verdict/claim-sentence'
 import { ClaimComposer } from './claim-composer'
 import { draftFromClaim, errorsFromIssues, type Draft, type DraftErrors } from './draft'
 import { ReconstructionProgress } from './reconstruction-progress'
@@ -210,7 +210,10 @@ function FirstRun({ example, onLoad }: { example: PublicReceipt | null; onLoad: 
         <h2 className="t-h3">Try a replayed claim</h2>
         {example ? (
           <>
-            <p className="t-lead mt-3">“{claimSentence(example.claim)}.”</p>
+            <p className="t-lead mt-3">
+              “<ClaimSentence claim={example.claim} />
+              .”
+            </p>
             <button
               type="button"
               onClick={onLoad}
@@ -439,7 +442,11 @@ export function InspectWorkspace({
           aria-label="Stamp did not complete"
           className="rounded-lg border border-rule-strong bg-workspace px-5 py-6 md:px-8"
         >
-          {phase.claim ? <p className="t-meta">{claimSentence(phase.claim)}</p> : null}
+          {phase.claim ? (
+            <p className="t-meta">
+              <ClaimSentence claim={phase.claim} />
+            </p>
+          ) : null}
           <h2 className="t-h3 mt-2">No verdict was stamped</h2>
           <p className="t-ui mt-2 max-w-[62ch] text-ink-soft">{phase.problem.message}</p>
           <div className="mt-5">
