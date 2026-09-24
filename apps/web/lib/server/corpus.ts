@@ -16,6 +16,9 @@ export interface CorpusView {
   runs: CorpusRunView[]
 }
 
+/** Selection rules and claims were frozen on this day; see eval/corpus/SELECTION.md. */
+export const CORPUS_FROZEN_ON = '2026-09-24'
+
 /** Measured corpus runs as stored by the operator's publish step. Nothing here is computed on read. */
 export async function loadCorpusView(): Promise<CorpusView> {
   const repo = await getRepo()
