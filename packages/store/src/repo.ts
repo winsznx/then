@@ -379,9 +379,7 @@ export class ThenRepository {
     )
   }
 
-  async getShare(
-    shareId: string,
-  ): Promise<{
+  async getShare(shareId: string): Promise<{
     daily_number: number | null
     correct: boolean
     streak: number
