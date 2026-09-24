@@ -1,0 +1,39 @@
+# Internal workspace: product spec, sponsor findings, probe evidence. Never committed.
+.internal/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+out/
+coverage/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+
+# Stamp output. Receipts carry raw Nansen payloads and wallet-level projections,
+# which are restricted data. Committed test inputs live in fixtures/ and are synthetic.
+receipts/
+data/private/
+.then/
+
+# Local databases
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Test artifacts
+playwright-report/
+test-results/
+blob-report/
+
+# OS and editor
+.DS_Store
+*.log
