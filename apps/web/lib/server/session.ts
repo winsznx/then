@@ -54,10 +54,25 @@ export async function ensureSession(): Promise<string> {
   return id
 }
 
+const onWorkers = typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers'
+
+/**
+ * The client address as the host reports it. On Cloudflare, CF-Connecting-IP is set by the edge
+ * and cannot come from the client. Elsewhere, X-Real-IP or the last X-Forwarded-For hop, which is
+ * the one the nearest proxy appended; the first hop is whatever the client sent.
+ */
+function clientAddress(h: Headers): string {
+  if (onWorkers) return h.get('cf-connecting-ip') ?? 'unknown'
+  const forwarded = h
+    .get('x-forwarded-for')
+    ?.split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+  return h.get('x-real-ip') ?? forwarded?.at(-1) ?? 'local'
+}
+
 /** A keyed hash of the client address for rate limits: the address itself is never stored. */
 export async function clientKey(): Promise<string> {
-  const h = await headers()
-  const forwarded = h.get('x-forwarded-for')?.split(',')[0]?.trim()
-  const address = forwarded || h.get('x-real-ip') || 'local'
+  const address = clientAddress(await headers())
   return createHmac('sha256', sessionSecret()).update(`ip:${address}`).digest('hex').slice(0, 32)
 }
