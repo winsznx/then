@@ -11,9 +11,10 @@ import Link from 'next/link'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { TradePanel } from '@/components/receipt/trade-panel'
-import { api } from '@/lib/client/api'
+import { api, readProblem } from '@/lib/client/api'
 import { track } from '@/lib/client/track'
 import { formatStamp } from '@/lib/format'
+import { STAMP_STREAM_TYPE, type StampEvent } from '@/lib/stamp-events'
 import { ClaimSentence } from '@/components/verdict/claim-sentence'
 import { ClaimComposer } from './claim-composer'
 import { draftFromClaim, errorsFromIssues, type Draft, type DraftErrors } from './draft'
@@ -36,7 +37,15 @@ type Phase =
   | { kind: 'idle' }
   | { kind: 'example'; receipt: PublicReceipt }
   | { kind: 'starting'; claim: DisplayClaim; startedAt: number }
-  | { kind: 'running'; claim: DisplayClaim; jobId: string; stages: Stages; startedAt: number }
+  | {
+      kind: 'running'
+      claim: DisplayClaim
+      jobId: string
+      stages: Stages
+      startedAt: number
+      /** Events arrive on the stamp's own stream; `poll` only after that stream was lost. */
+      via: 'stream' | 'poll'
+    }
   | { kind: 'done'; receipt: PublicReceipt; reused: boolean }
   | { kind: 'failed'; claim: DisplayClaim | null; problem: Problem; jobId: string | null }
 
@@ -44,6 +53,8 @@ type Action =
   | { type: 'start'; claim: DisplayClaim; at: number }
   | { type: 'accepted'; jobId: string }
   | { type: 'progress'; jobId: string; stages: Stages }
+  | { type: 'stage'; jobId: string; stage: SourceClass; status: StageStatus }
+  | { type: 'lost'; jobId: string }
   | { type: 'finished'; receipt: PublicReceipt; reused: boolean; jobId: string | null }
   | { type: 'failed'; problem: Problem; jobId: string | null }
   | { type: 'resume'; jobId: string; at: number }
@@ -62,11 +73,20 @@ function reduce(phase: Phase, action: Action): Phase {
             jobId: action.jobId,
             stages: {},
             startedAt: phase.startedAt,
+            via: 'stream',
           }
         : phase
     case 'progress':
       return phase.kind === 'running' && phase.jobId === action.jobId
         ? { ...phase, stages: action.stages }
+        : phase
+    case 'stage':
+      return phase.kind === 'running' && phase.jobId === action.jobId
+        ? { ...phase, stages: { ...phase.stages, [action.stage]: action.status } }
+        : phase
+    case 'lost':
+      return phase.kind === 'running' && phase.jobId === action.jobId
+        ? { ...phase, via: 'poll' }
         : phase
     case 'finished':
       if (action.jobId !== null && !(phase.kind === 'running' && phase.jobId === action.jobId))
@@ -87,6 +107,7 @@ function reduce(phase: Phase, action: Action): Phase {
             jobId: action.jobId,
             stages: {},
             startedAt: action.at,
+            via: 'poll',
           }
         : phase
     case 'example':
@@ -103,8 +124,11 @@ interface StatusResponse {
   receipt: PublicReceipt | null
 }
 
-type StampResponse =
-  { status: 'running'; job_id: string } | { status: 'done'; receipt: PublicReceipt; reused: true }
+interface ReusedResponse {
+  status: 'done'
+  receipt: PublicReceipt
+  reused: true
+}
 
 /** A stamp is bounded at 45 seconds server-side; polling gives up well after that. */
 const POLL_LIMIT_MS = 120_000
@@ -264,10 +288,12 @@ export function InspectWorkspace({
   const [phase, dispatch] = useReducer(reduce, { kind: 'idle' })
   const [composer, setComposer] = useState({ key: 0, draft: initial })
   const lastInput = useRef<ClaimInput | null>(null)
-  const jobId = phase.kind === 'running' ? phase.jobId : null
+  const stream = useRef<AbortController | null>(null)
+  const jobId = phase.kind === 'running' && phase.via === 'poll' ? phase.jobId : null
 
   useEffect(() => {
     track('inspect_opened')
+    return () => stream.current?.abort()
   }, [])
 
   useEffect(() => {
@@ -357,29 +383,108 @@ export function InspectWorkspace({
     }
   }, [jobId])
 
+  /** Applies the stamp's event stream; if it ends early, the job is polled by id instead. */
+  async function follow(body: ReadableStream<Uint8Array>, signal: AbortSignal, input: ClaimInput) {
+    const reader = body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let job: string | null = null
+    let settled = false
+    const apply = (event: StampEvent) => {
+      switch (event.type) {
+        case 'accepted':
+          job = event.job_id
+          dispatch({ type: 'accepted', jobId: event.job_id })
+          track('stamp_started', { chain: input.chain, claim_type: input.claim_type })
+          return
+        case 'stage':
+          if (job) dispatch({ type: 'stage', jobId: job, stage: event.stage, status: event.status })
+          return
+        case 'done':
+          settled = true
+          dispatch({ type: 'finished', jobId: job, receipt: event.receipt, reused: false })
+          return
+        case 'failed':
+          settled = true
+          dispatch({
+            type: 'failed',
+            jobId: job,
+            problem: { code: event.error, message: JOB_ERRORS[event.error] ?? STAMP_FAILED },
+          })
+      }
+    }
+    try {
+      for (;;) {
+        const { value, done } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split('\n')
+        buffer = lines.pop() ?? ''
+        for (const line of lines) if (line.trim()) apply(JSON.parse(line) as StampEvent)
+      }
+    } catch (error) {
+      if (signal.aborted) return
+      console.warn('stamp stream interrupted', error)
+    }
+    if (settled || signal.aborted) return
+    if (job) dispatch({ type: 'lost', jobId: job })
+    else
+      dispatch({
+        type: 'failed',
+        jobId: null,
+        problem: { code: 'STREAM_FAILED', message: STAMP_FAILED },
+      })
+  }
+
   async function stamp(input: ClaimInput): Promise<DraftErrors | null> {
     lastInput.current = input
     dispatch({ type: 'start', claim: displayClaim(input), at: Date.now() })
     track('claim_submitted', { chain: input.chain, claim_type: input.claim_type })
-    const result = await api<StampResponse>('/api/stamp', { method: 'POST', json: input })
-    if (!result.ok) {
-      if (result.code === 'INVALID_CLAIM' && result.issues) {
+    stream.current?.abort()
+    const controller = new AbortController()
+    stream.current = controller
+    let response: Response
+    try {
+      response = await fetch('/api/stamp', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          accept: `${STAMP_STREAM_TYPE}, application/json`,
+        },
+        body: JSON.stringify(input),
+        signal: controller.signal,
+      })
+    } catch (error) {
+      if (controller.signal.aborted) return null
+      dispatch({
+        type: 'failed',
+        jobId: null,
+        problem: {
+          code: 'NETWORK_ERROR',
+          message: `THEN could not reach its server: ${String(error)}`,
+        },
+      })
+      return null
+    }
+    if (!response.ok) {
+      const problem = await readProblem(response)
+      if (problem.code === 'INVALID_CLAIM' && problem.issues) {
         dispatch({ type: 'reset' })
-        return errorsFromIssues(result.issues)
+        return errorsFromIssues(problem.issues)
       }
       dispatch({
         type: 'failed',
         jobId: null,
-        problem: { code: result.code, message: result.message },
+        problem: { code: problem.code, message: problem.message },
       })
       return null
     }
-    if (result.data.status === 'done') {
-      dispatch({ type: 'finished', jobId: null, receipt: result.data.receipt, reused: true })
-    } else {
-      dispatch({ type: 'accepted', jobId: result.data.job_id })
-      track('stamp_started', { chain: input.chain, claim_type: input.claim_type })
+    if (response.body && (response.headers.get('content-type') ?? '').includes(STAMP_STREAM_TYPE)) {
+      await follow(response.body, controller.signal, input)
+      return null
     }
+    const reused = (await response.json()) as ReusedResponse
+    dispatch({ type: 'finished', jobId: null, receipt: reused.receipt, reused: true })
     return null
   }
 

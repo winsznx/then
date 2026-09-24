@@ -8,13 +8,14 @@ import {
   type ReasonCode,
 } from '@then/core'
 import { buildReceipt, type SigningKey } from '@then/receipt'
-import { runStamp } from '@then/stamp'
+import { runStamp, type ProgressEvent } from '@then/stamp'
 import type { ThenRepository } from '@then/store'
 import { after } from 'next/server'
 import { getRepo } from './db'
 import { env } from './env'
 import { hostedSigningKey } from './keys'
 import { log, nansen, remainingCredits, spentCredits } from './nansen'
+import type { StampEvent } from '@/lib/stamp-events'
 
 export const IDEMPOTENCY_WINDOW_MS = 10 * 60 * 1000
 /** A receipt that failed on an upstream hiccup is not reused: the same claim is stamped again. */
@@ -29,7 +30,8 @@ export const CREDIT_FLOOR = 25
 const RATE_LIMIT_COOLDOWN_MS = 60_000
 let coolingUntil = 0
 
-export type StartStamp =
+/** Outcomes decided before Nansen is called. */
+export type EarlyResult =
   | { kind: 'invalid'; issues: { path: string; message: string }[] }
   | {
       kind: 'unavailable'
@@ -37,7 +39,6 @@ export type StartStamp =
     }
   | { kind: 'rate_limited'; limit: number }
   | { kind: 'existing'; receipt: PublicReceipt }
-  | { kind: 'started'; job_id: string }
 
 function gitSha(): string | null {
   return (
@@ -49,7 +50,7 @@ function gitSha(): string | null {
 }
 
 type Prepared =
-  | { kind: 'early'; result: Exclude<StartStamp, { kind: 'started' }> }
+  | { kind: 'early'; result: EarlyResult }
   | {
       kind: 'ready'
       claim: Claim
@@ -94,13 +95,20 @@ async function prepare(input: unknown, client: string): Promise<Prepared> {
   return { kind: 'ready', claim, hash, jobId, signer, repo }
 }
 
+type JobResult =
+  { ok: true; receipt: PublicReceipt } | { ok: false; error: 'API_KEY_REJECTED' | 'STAMP_FAILED' }
+
 /** Runs the one shared orchestrator for a prepared job and records how it ended. */
-async function runJob(job: Extract<Prepared, { kind: 'ready' }>): Promise<PublicReceipt | null> {
+async function runJob(
+  job: Extract<Prepared, { kind: 'ready' }>,
+  onStage?: (event: ProgressEvent) => void,
+): Promise<JobResult> {
   const { claim, hash, jobId, signer, repo } = job
   try {
     const run = await runStamp(claim, {
       client: nansen(),
       onProgress: (event) => {
+        onStage?.(event)
         repo.updateJobStage(jobId, event.stage, event.status).catch((error: unknown) => {
           log('warn', { event: 'stamp.progress_write_failed', job: jobId, error: String(error) })
         })
@@ -117,7 +125,7 @@ async function runJob(job: Extract<Prepared, { kind: 'ready' }>): Promise<Public
     }
     if (run.layers.some((layer) => layer.error?.kind === 'auth')) {
       await repo.finishJob(jobId, { error: 'API_KEY_REJECTED' })
-      return null
+      return { ok: false, error: 'API_KEY_REJECTED' }
     }
     const bundle = buildReceipt(run, { origin: 'live_stamp', gitSha: gitSha(), signer })
     await repo.putReceipt(bundle)
@@ -140,7 +148,7 @@ async function runJob(job: Extract<Prepared, { kind: 'ready' }>): Promise<Public
       verdict: bundle.public.verdict,
       credits: run.credits_used,
     })
-    return bundle.public
+    return { ok: true, receipt: bundle.public }
   } catch (error) {
     log('error', {
       event: 'stamp.failed',
@@ -158,32 +166,58 @@ async function runJob(job: Extract<Prepared, { kind: 'ready' }>): Promise<Public
     await repo
       .recordEvent('stamp_failed', null, { chain: claim.chain, claim_type: claim.claim_type })
       .catch(logWriteFailure('event'))
-    return null
+    return { ok: false, error: 'STAMP_FAILED' }
   }
 }
 
+export type StreamStamp = EarlyResult | { kind: 'stream'; body: ReadableStream<Uint8Array> }
+
 /**
- * Accepts a claim and runs the stamp after the response. The browser polls the job; it never
- * computes a verdict.
+ * Accepts a claim and runs the stamp inside the request, streaming one JSON line per event:
+ * accepted, each stage as it resolves, then the receipt or the failure. Hosts that stop work
+ * after the response (Cloudflare Workers) keep the stamp alive this way; the browser never
+ * computes a verdict. A client that loses the stream can still poll the job by id.
  */
-export async function startStamp(input: unknown, client: string): Promise<StartStamp> {
+export async function streamStamp(input: unknown, client: string): Promise<StreamStamp> {
   const prepared = await prepare(input, client)
   if (prepared.kind === 'early') return prepared.result
-  after(async () => {
-    await runJob(prepared)
+  const encoder = new TextEncoder()
+  let open = true
+  let finished: Promise<JobResult> | undefined
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      const send = (event: StampEvent) => {
+        if (open) controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
+      }
+      send({ type: 'accepted', job_id: prepared.jobId })
+      finished = runJob(prepared, (event) =>
+        send({ type: 'stage', stage: event.stage, status: event.status }),
+      ).then((result) => {
+        send(
+          result.ok
+            ? { type: 'done', receipt: result.receipt }
+            : { type: 'failed', error: result.error },
+        )
+        if (open) controller.close()
+        open = false
+        return result
+      })
+    },
+    cancel() {
+      open = false
+      // The visitor left; let the stamp finish and record its receipt where the host allows it.
+      if (finished) after(finished)
+    },
   })
-  return { kind: 'started', job_id: prepared.jobId }
+  return { kind: 'stream', body }
 }
 
-export type StampNow =
-  | Exclude<StartStamp, { kind: 'started' }>
-  | { kind: 'done'; receipt: PublicReceipt }
-  | { kind: 'failed' }
+export type StampNow = EarlyResult | { kind: 'done'; receipt: PublicReceipt } | { kind: 'failed' }
 
-/** The same checks and orchestrator, awaited in the request. For callers that cannot poll. */
+/** The same checks and orchestrator, awaited in the request. For callers that want one answer. */
 export async function stampNow(input: unknown, client: string): Promise<StampNow> {
   const prepared = await prepare(input, client)
   if (prepared.kind === 'early') return prepared.result
-  const receipt = await runJob(prepared)
-  return receipt ? { kind: 'done', receipt } : { kind: 'failed' }
+  const result = await runJob(prepared)
+  return result.ok ? { kind: 'done', receipt: result.receipt } : { kind: 'failed' }
 }

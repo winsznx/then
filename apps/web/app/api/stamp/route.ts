@@ -1,6 +1,7 @@
-import { startStamp } from '@/lib/server/stamp'
 import { handleError, json, problem, readJson } from '@/lib/server/http'
 import { clientKey } from '@/lib/server/session'
+import { streamStamp } from '@/lib/server/stamp'
+import { STAMP_STREAM_TYPE } from '@/lib/stamp-events'
 
 export const maxDuration = 60
 
@@ -14,16 +15,23 @@ const UNAVAILABLE: Record<string, [number, string]> = {
   ],
 }
 
+/**
+ * Starts a stamp. Refusals and a reused receipt come back as JSON; an accepted stamp streams
+ * newline-delimited JSON events until its receipt is written.
+ */
 export async function POST(request: Request): Promise<Response> {
   try {
-    const result = await startStamp(await readJson(request), await clientKey())
+    const result = await streamStamp(await readJson(request), await clientKey())
     switch (result.kind) {
       case 'invalid':
         return problem(422, 'INVALID_CLAIM', 'The claim is incomplete or malformed.', {
           issues: result.issues,
         })
       case 'unavailable': {
-        const [status, message] = UNAVAILABLE[result.reason]!
+        const [status, message] = UNAVAILABLE[result.reason] ?? [
+          503,
+          'This deployment cannot stamp right now.',
+        ]
         return problem(status, result.reason, message)
       }
       case 'rate_limited':
@@ -34,8 +42,14 @@ export async function POST(request: Request): Promise<Response> {
         )
       case 'existing':
         return json({ status: 'done', receipt: result.receipt, reused: true })
-      case 'started':
-        return json({ status: 'running', job_id: result.job_id }, { status: 202 })
+      case 'stream':
+        return new Response(result.body, {
+          headers: {
+            'content-type': `${STAMP_STREAM_TYPE}; charset=utf-8`,
+            'cache-control': 'no-store',
+            'x-accel-buffering': 'no',
+          },
+        })
     }
   } catch (error) {
     return handleError(error)

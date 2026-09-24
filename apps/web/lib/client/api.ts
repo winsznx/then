@@ -38,8 +38,18 @@ export async function api<T>(
     if (error instanceof DOMException && error.name === 'AbortError') throw error
     return { ...OFFLINE, status: 0 }
   }
+  if (response.ok)
+    return {
+      ok: true,
+      status: response.status,
+      data: (await response.json().catch(() => null)) as T,
+    }
+  return readProblem(response)
+}
+
+/** The error envelope every THEN route uses, read from a failed response. */
+export async function readProblem(response: Response): Promise<ApiProblem> {
   const body: unknown = await response.json().catch(() => null)
-  if (response.ok) return { ok: true, status: response.status, data: body as T }
   const problem = (
     body as { error?: { code?: unknown; message?: unknown; issues?: unknown } } | null
   )?.error
