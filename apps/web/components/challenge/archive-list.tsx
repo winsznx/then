@@ -3,6 +3,7 @@
 import {
   CHAIN_DISPLAY,
   CLAIM_TYPE_DISPLAY,
+  VERDICTS,
   type Chain,
   type ClaimType,
   type Verdict,
@@ -73,6 +74,11 @@ export function ArchiveList({ rows }: { rows: ArchiveRowView[] }) {
   const [chain, setChain] = useState('all')
   const [claimType, setClaimType] = useState('all')
   const [played, setPlayed] = useState<PlayedFilter>('all')
+  const [verdict, setVerdict] = useState<'all' | Verdict>('all')
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  const fromId = useId()
+  const toId = useId()
 
   useEffect(() => {
     track('archive_opened')
@@ -84,12 +90,15 @@ export function ArchiveList({ rows }: { rows: ArchiveRowView[] }) {
     (row) =>
       (chain === 'all' || row.chain === chain) &&
       (claimType === 'all' || row.claim_type === claimType) &&
-      (played === 'all' || (played === 'played') === (row.played !== null)),
+      (played === 'all' || (played === 'played') === (row.played !== null)) &&
+      (verdict === 'all' || row.played?.verdict === verdict) &&
+      (!from || row.as_of_date >= from) &&
+      (!to || row.as_of_date <= to),
   )
 
   return (
     <div>
-      <div className="grid gap-4 sm:grid-cols-3 lg:max-w-[760px]">
+      <div className="grid gap-4 sm:grid-cols-3 lg:max-w-[1040px] lg:grid-cols-6">
         <Select
           label="Chain"
           value={chain}
@@ -124,6 +133,39 @@ export function ArchiveList({ rows }: { rows: ArchiveRowView[] }) {
             ['played', 'Played'],
           ]}
         />
+        <Select
+          label="Verdict (played cases)"
+          value={verdict}
+          onChange={(value) => setVerdict(value as 'all' | Verdict)}
+          options={[
+            ['all', 'Any verdict'],
+            ...VERDICTS.map((value): [string, string] => [value, value]),
+          ]}
+        />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={fromId} className="t-meta">
+            Claim date from
+          </label>
+          <input
+            id={fromId}
+            type="date"
+            value={from}
+            onChange={(event) => setFrom(event.target.value)}
+            className="t-ui h-11 rounded-md border border-rule-strong bg-canvas px-3 text-ink"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={toId} className="t-meta">
+            Claim date to
+          </label>
+          <input
+            id={toId}
+            type="date"
+            value={to}
+            onChange={(event) => setTo(event.target.value)}
+            className="t-ui h-11 rounded-md border border-rule-strong bg-canvas px-3 text-ink"
+          />
+        </div>
       </div>
 
       <p className="t-meta mt-8" aria-live="polite">

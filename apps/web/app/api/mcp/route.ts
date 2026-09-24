@@ -10,6 +10,7 @@ export const maxDuration = 60
 const UNAVAILABLE: Record<string, string> = {
   NO_API_KEY: 'This deployment has no Nansen API key, so it cannot stamp.',
   NO_SIGNING_KEY: 'This deployment has no receipt signing key, so it cannot stamp.',
+  UPSTREAM_BUSY: 'Nansen is rate-limiting requests right now. Try again in a minute.',
   QUOTA_REACHED:
     'The public deployment has used its Nansen credits for now. Run `then mcp` with your own key.',
 }

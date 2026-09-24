@@ -7,6 +7,7 @@ export const maxDuration = 60
 const UNAVAILABLE: Record<string, [number, string]> = {
   NO_API_KEY: [503, 'This deployment has no Nansen API key, so it cannot stamp.'],
   NO_SIGNING_KEY: [503, 'This deployment has no receipt signing key, so it cannot stamp.'],
+  UPSTREAM_BUSY: [503, 'Nansen is rate-limiting requests right now. Try again in a minute.'],
   QUOTA_REACHED: [
     503,
     'The public demo has used its Nansen credits for now. Stored receipts and the Challenge still work.',

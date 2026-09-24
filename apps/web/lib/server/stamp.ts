@@ -25,10 +25,16 @@ const TRANSIENT_REASONS: ReadonlySet<ReasonCode> = new Set([
 ])
 /** Below this, public stamping pauses so one stamp cannot fail halfway for lack of credits. */
 export const CREDIT_FLOOR = 25
+/** After Nansen rate-limits a stamp, new stamps wait this long instead of adding to the load. */
+const RATE_LIMIT_COOLDOWN_MS = 60_000
+let coolingUntil = 0
 
 export type StartStamp =
   | { kind: 'invalid'; issues: { path: string; message: string }[] }
-  | { kind: 'unavailable'; reason: 'NO_API_KEY' | 'NO_SIGNING_KEY' | 'QUOTA_REACHED' }
+  | {
+      kind: 'unavailable'
+      reason: 'NO_API_KEY' | 'NO_SIGNING_KEY' | 'QUOTA_REACHED' | 'UPSTREAM_BUSY'
+    }
   | { kind: 'rate_limited'; limit: number }
   | { kind: 'existing'; receipt: PublicReceipt }
   | { kind: 'started'; job_id: string }
@@ -76,6 +82,9 @@ async function prepare(input: unknown, client: string): Promise<Prepared> {
   if (before >= env.stampsPerHour)
     return { kind: 'early', result: { kind: 'rate_limited', limit: env.stampsPerHour } }
 
+  if (Date.now() < coolingUntil)
+    return { kind: 'early', result: { kind: 'unavailable', reason: 'UPSTREAM_BUSY' } }
+
   const credits = await remainingCredits()
   if (credits !== null && credits < CREDIT_FLOOR)
     return { kind: 'early', result: { kind: 'unavailable', reason: 'QUOTA_REACHED' } }
@@ -98,6 +107,14 @@ async function runJob(job: Extract<Prepared, { kind: 'ready' }>): Promise<Public
       },
     })
     spentCredits(run.credits_used)
+    if (run.layers.some((layer) => layer.error?.kind === 'rate_limit')) {
+      coolingUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS
+      log('warn', {
+        event: 'stamp.rate_limited_cooldown',
+        job: jobId,
+        seconds: RATE_LIMIT_COOLDOWN_MS / 1000,
+      })
+    }
     if (run.layers.some((layer) => layer.error?.kind === 'auth')) {
       await repo.finishJob(jobId, { error: 'API_KEY_REJECTED' })
       return null
