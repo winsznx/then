@@ -1,0 +1,16 @@
+# Never in an image: private material, local state, and build output.
+.internal
+.env
+.env.*
+.then
+receipts
+**/node_modules
+**/.next
+**/dist
+coverage
+apps/web/e2e/.state
+apps/web/test-results
+apps/web/playwright-report
+.git
+.DS_Store
+*.log

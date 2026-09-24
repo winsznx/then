@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm --filter @then/web lint
+      - run: pnpm test
+      - name: Fixture receipts are reproducible
+        run: pnpm then fixtures && git diff --exit-code fixtures
+      - name: Build
+        run: pnpm build
+      - name: Verify committed fixtures offline
+        run: node scripts/verify-fixtures.mjs
+      - name: End-to-end
+        run: |
+          pnpm --filter @then/web exec playwright install --with-deps chromium
+          pnpm --filter @then/web test:e2e
+
+  clean-room:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the verifier image
+        run: docker build -f Dockerfile.verify -t then-verify .
+      - name: Verify with no network
+        run: docker run --rm --network none then-verify

@@ -8,6 +8,9 @@ const envFile = process.env.THEN_ENV_FILE ?? resolve(process.cwd(), '../../.env'
 if (envFile !== 'none' && existsSync(envFile)) process.loadEnvFile(envFile)
 
 const nextConfig: NextConfig = {
+  // A self-contained server for container hosting; tracing starts at the monorepo root.
+  output: 'standalone',
+  outputFileTracingRoot: resolve(process.cwd(), '../..'),
   poweredByHeader: false,
   reactStrictMode: true,
   transpilePackages: [

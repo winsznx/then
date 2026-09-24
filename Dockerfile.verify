@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1
+# Clean-room verification: build the CLI, then run with --network none. Every committed fixture
+# receipt is recomputed from its stored payloads, publicly verified, and ablated.
+#   docker build -f Dockerfile.verify -t then-verify .
+#   docker run --rm --network none then-verify
+FROM node:24-slim
+WORKDIR /repo
+RUN npm install -g pnpm@11.23.0
+COPY . .
+RUN pnpm install --frozen-lockfile && pnpm --filter @then/cli build
+USER node
+CMD ["node", "scripts/verify-fixtures.mjs", "fixtures/receipts"]
