@@ -41,7 +41,9 @@ test.describe('responsive smoke', () => {
     })
   }
 
-  test('Inspect shows the example as a replay and clears it for a new claim', async ({ page }) => {
+  test('Inspect shows the example as a replay and clears it for a new claim @limit', async ({
+    page,
+  }) => {
     // #given a visitor who has used this hour's stamp, with the example loaded
     await page.setExtraHTTPHeaders({ 'x-forwarded-for': '10.0.0.1' })
     await (

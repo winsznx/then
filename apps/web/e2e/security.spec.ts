@@ -177,7 +177,7 @@ test.describe('historical data switched off', () => {
 })
 
 test.describe('the hosted key is rate limited', () => {
-  test('a stamp over the per-client limit is refused before Nansen is called', async ({
+  test('a stamp over the per-client limit is refused before Nansen is called @limit', async ({
     request,
   }) => {
     // #given a client that has used its one stamp this hour

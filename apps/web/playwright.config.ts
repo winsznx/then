@@ -13,6 +13,14 @@ import {
 
 const baseURL = `http://127.0.0.1:${E2E_PORT}`
 
+/** Answers the Nansen routes a stamp calls with a stored scenario; no real key or credit is used. */
+export const mockNansen = {
+  command: 'pnpm exec tsx e2e/mock-nansen.ts',
+  url: `http://127.0.0.1:${MOCK_NANSEN_PORT}/api/v1/account`,
+  reuseExistingServer: false,
+  timeout: 60_000,
+}
+
 /**
  * Runs the production build against a seeded throwaway database. The root .env is never read, so
  * a real Nansen key cannot reach these tests; the sentinel key must not reach the browser.
@@ -26,12 +34,7 @@ export default defineConfig({
   use: { baseURL, trace: 'retain-on-failure' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
-    {
-      command: 'pnpm exec tsx e2e/mock-nansen.ts',
-      url: `http://127.0.0.1:${MOCK_NANSEN_PORT}/api/v1/account`,
-      reuseExistingServer: false,
-      timeout: 60_000,
-    },
+    mockNansen,
     {
       command: `pnpm exec tsx e2e/seed.ts && pnpm exec next start -H 127.0.0.1 -p ${E2E_PORT}`,
       url: `${baseURL}/method`,

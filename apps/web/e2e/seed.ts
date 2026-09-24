@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { claimFromReceipt, createCase } from '@then/challenge'
 import { SCENARIOS, runFromScenario } from '@then/fixtures'
 import { buildReceipt, signingKeyFromSeed } from '@then/receipt'
-import { ThenRepository, migrate, pgliteDb } from '@then/store'
+import { ThenRepository, migrate, pgliteDb, postgresDb, type Db } from '@then/store'
 import { LOCAL_PUBLIC_KEY, LOCAL_SEED, STATE_DIR } from './constants'
 
 /**
@@ -14,11 +14,24 @@ import { LOCAL_PUBLIC_KEY, LOCAL_SEED, STATE_DIR } from './constants'
 /** Before the run, so no seeded receipt falls inside the ten-minute reuse window. */
 const STAMPED_AT = '2026-06-20T00:00:00.000Z'
 
+/** Empties a local throwaway Postgres (the Workers e2e run). Refuses any non-local host. */
+async function freshPostgres(url: string): Promise<Db> {
+  const host = new URL(url).hostname
+  if (host !== '127.0.0.1' && host !== 'localhost')
+    throw new Error(`refusing to reset non-local database ${host}`)
+  const db = await postgresDb(url, { max: 1 })
+  await db.query('drop schema if exists public cascade')
+  await db.query('create schema public')
+  return db
+}
+
 async function main(): Promise<void> {
   const state = resolve(STATE_DIR)
   await rm(state, { recursive: true, force: true })
   await mkdir(state, { recursive: true })
-  const db = await pgliteDb(resolve(state, 'pglite'))
+  const db = process.env.E2E_DATABASE_URL
+    ? await freshPostgres(process.env.E2E_DATABASE_URL)
+    : await pgliteDb(resolve(state, 'pglite'))
   await migrate(db)
   const repo = new ThenRepository(db)
   const signer = signingKeyFromSeed(LOCAL_SEED, 'local')
