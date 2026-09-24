@@ -1,11 +1,11 @@
 import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { claimFromReceipt, commitGuess, createCase } from '@then/challenge'
 import { SCENARIOS, runFromScenario } from '@then/fixtures'
 import { FIXTURE_SIGNING_KEY, buildReceipt } from '@then/receipt'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { FsReceiptStore, ThenRepository, migrate, pgliteDb, type Db } from '../src'
+import { FsReceiptStore, ThenRepository, locateReceipt, migrate, pgliteDb, type Db } from '../src'
 
 let db: Db
 let repo: ThenRepository
@@ -165,5 +165,30 @@ describe('FsReceiptStore', () => {
     const mismatched = await store.checkListing(b.receipt_id)
     // #then
     expect(mismatched).toEqual(['verdict.json'])
+  })
+})
+
+describe('locateReceipt', () => {
+  it('looks a bare receipt id up under the given root, not the working directory', () => {
+    // #given a bare id and a receipt directory
+    const id = 'rcpt_abcdefghijklmnopqrst'
+    // #when it is located
+    const located = locateReceipt(id, 'fixtures/receipts')
+    // #then the root is the one given
+    expect(located).toEqual({ root: resolve('fixtures/receipts'), receiptId: id })
+  })
+
+  it('reads the root from a path inside a bundle', () => {
+    // #given a path to a public receipt file
+    const path = '/data/receipts/rcpt_abcdefghijklmnopqrst/public/receipt.public.json'
+    // #when it is located
+    const located = locateReceipt(path, 'ignored')
+    // #then the bundle's parent directory is the root
+    expect(located).toEqual({ root: '/data/receipts', receiptId: 'rcpt_abcdefghijklmnopqrst' })
+  })
+
+  it('returns null for anything that names no receipt', () => {
+    // #then
+    expect(locateReceipt('../../etc/passwd')).toBeNull()
   })
 })

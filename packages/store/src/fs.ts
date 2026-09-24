@@ -117,12 +117,17 @@ function json(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`
 }
 
-/** Accepts a receipt id or a path inside a bundle (…/rcpt_x/public/receipt.public.json). */
-export function locateReceipt(input: string): { root: string; receiptId: string } | null {
-  const absolute = resolve(input)
-  const parts = absolute.split(sep)
+/**
+ * Accepts a bare receipt id (looked up under `defaultRoot`) or a path inside a bundle
+ * (…/rcpt_x/public/receipt.public.json).
+ */
+export function locateReceipt(
+  input: string,
+  defaultRoot = 'receipts',
+): { root: string; receiptId: string } | null {
+  if (isReceiptId(input)) return { root: resolve(defaultRoot), receiptId: input }
+  const parts = resolve(input).split(sep)
   const index = parts.findIndex((part) => isReceiptId(part))
-  if (index === -1)
-    return isReceiptId(input) ? { root: resolve('receipts'), receiptId: input } : null
+  if (index === -1) return null
   return { root: parts.slice(0, index).join(sep) || sep, receiptId: parts[index]! }
 }

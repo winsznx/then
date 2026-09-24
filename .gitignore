@@ -20,6 +20,8 @@ next-env.d.ts
 # Stamp output. Receipts carry raw Nansen payloads and wallet-level projections,
 # which are restricted data. Committed test inputs live in fixtures/ and are synthetic.
 receipts/
+# Synthetic, fixture-signed bundles are committed; real receipts never are.
+!fixtures/receipts/
 data/private/
 .then/
 
