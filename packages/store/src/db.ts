@@ -30,9 +30,18 @@ export async function pgliteDb(dataDir?: string): Promise<Db> {
   return wrap(client)
 }
 
-export async function postgresDb(url: string): Promise<Db> {
+/**
+ * `max` is the pool size. Serverless callers that open one client per request pass 1.
+ * Prepared statements stay off so transaction-mode poolers (Supabase, PgBouncer) work.
+ */
+export async function postgresDb(url: string, options: { max?: number } = {}): Promise<Db> {
   const { default: postgres } = await import('postgres')
-  const sql = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10, prepare: false })
+  const sql = postgres(url, {
+    max: options.max ?? 5,
+    idle_timeout: 20,
+    connect_timeout: 10,
+    prepare: false,
+  })
   type Runner = { unsafe: (text: string, params?: never[]) => Promise<unknown> }
   const wrap = (runner: Runner, root: boolean): Db => ({
     async query<T>(text: string, params: readonly unknown[] = []) {
