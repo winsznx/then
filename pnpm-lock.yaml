@@ -8,6 +8,12 @@ importers:
 
   .:
     devDependencies:
+      '@then/engine-reference':
+        specifier: workspace:*
+        version: link:packages/engine-reference
+      '@then/fixtures':
+        specifier: workspace:*
+        version: link:packages/fixtures
       '@types/node':
         specifier: 26.6.2
         version: 26.6.2
@@ -38,6 +44,36 @@ importers:
       zod:
         specifier: 4.6.5
         version: 4.6.5
+
+  packages/engine:
+    dependencies:
+      '@then/core':
+        specifier: workspace:*
+        version: link:../core
+      '@then/nansen':
+        specifier: workspace:*
+        version: link:../nansen
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
+
+  packages/engine-reference:
+    dependencies:
+      '@then/core':
+        specifier: workspace:*
+        version: link:../core
+      '@then/engine':
+        specifier: workspace:*
+        version: link:../engine
+
+  packages/fixtures:
+    dependencies:
+      '@then/core':
+        specifier: workspace:*
+        version: link:../core
+      '@then/engine':
+        specifier: workspace:*
+        version: link:../engine
 
   packages/nansen:
     dependencies:

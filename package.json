@@ -18,6 +18,8 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@then/engine-reference": "workspace:*",
+    "@then/fixtures": "workspace:*",
     "@types/node": "26.6.2",
     "eslint": "10.11.0",
     "prettier": "3.9.9",
