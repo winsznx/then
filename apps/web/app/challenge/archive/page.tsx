@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ArchiveList } from '@/components/challenge/archive-list'
 import { archiveFor } from '@/lib/server/challenge'
 import { readSession } from '@/lib/server/session'
+import { connection } from 'next/server'
 
 export const metadata: Metadata = {
   title: 'Challenge archive',
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ArchivePage() {
+  await connection()
   const rows = await archiveFor(await readSession())
   return (
     <div className="page pt-10 pb-24 md:pt-16 md:pb-32">

@@ -5,6 +5,7 @@ import { CorpusTable } from '@/components/corpus/corpus-table'
 import { chainName, formatDay } from '@/lib/format'
 import { CORPUS_FROZEN_ON, loadCorpusView, type CorpusRunView } from '@/lib/server/corpus'
 import { env } from '@/lib/server/env'
+import { connection } from 'next/server'
 
 export const metadata: Metadata = {
   title: 'Evidence',
@@ -63,6 +64,7 @@ function distribution(run: CorpusRunView): { chain: string; stamped: number; tot
 }
 
 export default async function CorpusPage() {
+  await connection()
   const { runs } = await loadCorpusView()
   const first = runs[0]
   const heldOut = runs.find((run) => run.method_version === METHOD_VERSION)

@@ -13,6 +13,7 @@ import { TwoClocks } from '@/components/landing/two-clocks'
 import { loadCorpusView, type CorpusView } from '@/lib/server/corpus'
 import { log } from '@/lib/server/nansen'
 import { exampleReceipt } from '@/lib/server/receipts'
+import { connection } from 'next/server'
 
 async function corpusOrNull(): Promise<CorpusView | null> {
   try {
@@ -27,6 +28,7 @@ async function corpusOrNull(): Promise<CorpusView | null> {
 }
 
 export default async function Home() {
+  await connection()
   const [receipt, corpus] = await Promise.all([exampleReceipt(), corpusOrNull()])
   const run = corpus?.runs[0] ?? null
   return (

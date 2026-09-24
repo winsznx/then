@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ChallengeGame } from '@/components/challenge/challenge-game'
 import { caseView, dailyCase } from '@/lib/server/challenge'
 import { readSession } from '@/lib/server/session'
+import { connection } from 'next/server'
 
 export const metadata: Metadata = {
   title: 'Daily Challenge',
@@ -27,6 +28,7 @@ function Unavailable({ title, body }: { title: string; body: string }) {
 }
 
 export default async function ChallengePage() {
+  await connection()
   const challenge = await dailyCase()
   const view = challenge ? await caseView(challenge, await readSession()) : null
   return (
