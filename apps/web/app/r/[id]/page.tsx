@@ -29,9 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const ORIGIN_TEXT: Record<PublicReceipt['origin'], string> = {
-  live_stamp: 'live stamp',
-  restamp: 'restamp',
-  fixture: 'synthetic fixture',
+  live_stamp: 'stamped',
+  restamp: 'restamped',
+  fixture: 'synthetic fixture made',
 }
 
 const SIGNER_TEXT: Record<NonNullable<VerifyReport['signer']>['role'], string> = {
@@ -151,7 +151,7 @@ export default async function ReceiptPage({ params }: Props) {
         <header className="grid gap-10 md:grid-cols-12 md:gap-6">
           <div className="md:col-span-8">
             <p className="t-meta">Receipt {receipt.receipt_id}</p>
-            <p className="mt-5 text-[56px] leading-[0.9] md:text-[88px] xl:text-[112px]">
+            <p className="mt-5 text-[40px] leading-[0.9] sm:text-[56px] md:text-[88px] xl:text-[112px]">
               <VerdictWord verdict={receipt.verdict} />
             </p>
             <div className={`mt-5 h-px w-full max-w-[320px] ${style.rule}`} aria-hidden="true" />
