@@ -11,6 +11,8 @@ export interface DriftReport {
   original_generated_at: string
   restamp_generated_at: string
   verdict: { original: Verdict; restamp: Verdict; changed: boolean }
+  /** A restamp runs under the current method; a changed rule can move a verdict on its own. */
+  method: { original: string; restamp: string; changed: boolean }
   asof_support: { original: SupportState; restamp: SupportState; changed: boolean }
   live_support: { original: SupportState; restamp: SupportState; changed: boolean }
   sources: { source: string; changed: boolean }[]
@@ -44,6 +46,11 @@ export function compareReceipts(original: InternalReceipt, restamp: InternalRece
     original_generated_at: o.generated_at,
     restamp_generated_at: r.generated_at,
     verdict: { original: o.verdict, restamp: r.verdict, changed: o.verdict !== r.verdict },
+    method: {
+      original: o.method_version,
+      restamp: r.method_version,
+      changed: o.method_version !== r.method_version,
+    },
     asof_support: {
       original: o.decision_inputs.asof_support,
       restamp: r.decision_inputs.asof_support,

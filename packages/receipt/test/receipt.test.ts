@@ -239,12 +239,31 @@ describe('restamp drift', () => {
     expect({
       restated: drift.restated,
       verdictChanged: drift.verdict.changed,
+      methodChanged: drift.method.changed,
       originalUnchanged:
         hashCanonical(original.internal.body) === original.public.commitments.internal_commitment,
     }).toEqual({
       restated: true,
       verdictChanged: true,
+      methodChanged: false,
       originalUnchanged: true,
+    })
+  })
+
+  it('reports a method change so a revised rule is not read as restated data', () => {
+    // #given an original stamped under the previous method and a restamp under the current one
+    const original = fixtureBundle('P1')
+    const earlier = {
+      ...original.internal,
+      body: { ...original.internal.body, method_version: '2026-09-24' },
+    }
+    // #when the two are compared
+    const drift = compareReceipts(earlier, original.internal)
+    // #then the method difference is reported beside the data comparison
+    expect(drift.method).toEqual({
+      original: '2026-09-24',
+      restamp: original.internal.body.method_version,
+      changed: original.internal.body.method_version !== '2026-09-24',
     })
   })
 })
@@ -284,24 +303,24 @@ describe('verifier independence', () => {
 
 describe('trusted key configuration', () => {
   it('accepts role-prefixed keys and treats a bare key as hosted', () => {
-    // Given one local key and one bare key
+    // #given one local key and one bare key
     const local = generateSigningKey('local')
     const hosted = generateSigningKey('hosted')
-    // When the list is parsed
+    // #when the list is parsed
     const { keys, rejected } = parseTrustedKeys(
       `local:${local.public_key_hex}, ${hosted.public_key_hex.toUpperCase()}`,
     )
-    // Then both are trusted under the right roles and ids
+    // #then both are trusted under the right roles and ids
     expect(rejected).toEqual([])
     expect(keys).toEqual([trustedKeyOf(local), trustedKeyOf(hosted)])
   })
 
   it('rejects unknown roles and malformed keys instead of guessing', () => {
-    // Given an invented role and a truncated key
+    // #given an invented role and a truncated key
     const key = generateSigningKey('local').public_key_hex
-    // When the list is parsed
+    // #when the list is parsed
     const { keys, rejected } = parseTrustedKeys(`corpus:${key},local:${key.slice(0, 20)}`)
-    // Then neither entry is trusted
+    // #then neither entry is trusted
     expect(keys).toEqual([])
     expect(rejected).toHaveLength(2)
   })
