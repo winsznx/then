@@ -1,6 +1,7 @@
 import type { z } from 'zod'
 import {
   AccountSchema,
+  DexTradesSchema,
   FlowIntelligenceSchema,
   FlowsSchema,
   FlowSummarySchema,
@@ -65,6 +66,15 @@ export const ENDPOINTS = {
     surface: 'live',
     credits: 1,
     response: WhoBoughtSoldSchema,
+    rows: 'data',
+  }),
+  dexTrades: endpoint({
+    id: 'tgm.dex_trades',
+    method: 'POST',
+    path: '/api/v1/tgm/dex-trades',
+    surface: 'live',
+    credits: 1,
+    response: DexTradesSchema,
     rows: 'data',
   }),
   flows: endpoint({
@@ -256,4 +266,22 @@ export interface SearchGeneralRequest {
   result_type: 'token' | 'entity' | 'any'
   chain?: string
   limit?: number
+}
+
+export interface DexTradesRequest {
+  chain: string
+  token_address: string
+  date: DateRange
+  filters?: { include_smart_money_labels?: string[]; trader_address?: string }
+  pagination: PageRequest
+  order_by?: { field: string; direction: 'ASC' | 'DESC' }[]
+}
+
+export interface HistDexTradesRequest {
+  chain: string
+  token_address: string
+  date_range: DateRange
+  filters?: { include_labels?: string[]; trader_address?: string; action?: 'BUY' | 'SELL' }
+  pagination: PageRequest
+  order_by?: { field: string; direction: 'ASC' | 'DESC' }[]
 }

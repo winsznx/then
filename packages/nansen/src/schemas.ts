@@ -145,6 +145,29 @@ export const FlowSummarySchema = z.looseObject({
 export type FlowSummaryRow = z.infer<typeof FlowSummaryRowSchema>
 export type FlowSummary = z.infer<typeof FlowSummarySchema>
 
+/** Live TGM DEX trades: `trader_address_label` and the Smart Money filter use today's labels. */
+export const DexTradeRowSchema = z.looseObject({
+  block_timestamp: z.string(),
+  transaction_hash: z.string(),
+  trader_address: z.string(),
+  trader_address_label: str,
+  action: z.enum(['BUY', 'SELL']),
+  token_address: str,
+  token_name: str,
+  token_amount: num,
+  traded_token_address: str,
+  traded_token_name: str,
+  traded_token_amount: num,
+  estimated_swap_price_usd: num,
+  estimated_value_usd: num,
+})
+export const DexTradesSchema = z.looseObject({
+  data: z.array(DexTradeRowSchema),
+  pagination: PaginationSchema,
+})
+export type DexTrade = z.infer<typeof DexTradeRowSchema>
+
+/** Historical DEX trades: `trader_address_label` is resolved at each trade's date. */
 export const HistDexTradeRowSchema = z.looseObject({
   block_timestamp: z.string(),
   transaction_hash: z.string(),

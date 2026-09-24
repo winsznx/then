@@ -41,14 +41,21 @@ export type SourceStatus = (typeof SOURCE_STATUSES)[number]
 
 export const THRESHOLD_BASES = ['volume', 'min_usd'] as const
 
-/** Internal source ids. Each maps to one Nansen endpoint family and one side of the comparison. */
+/**
+ * Internal source ids. Each maps to one Nansen endpoint family and one side of the comparison.
+ * `*_trades`: DEX trades by Smart Money wallets (live: today's labels; asof: labels at trade date).
+ * `live_flows` / `asof_snapshot`: Smart Money holdings of the token (today's cohort vs each day's cohort).
+ * `asof_flow_summary`: Smart Trader net flow resolved at the window end; corroborates only.
+ * `attribution`: one historical trade lookup for the largest wallet that only today's labels count.
+ */
 export const SOURCE_IDS = [
-  'asof_wallets',
+  'live_trades',
+  'asof_trades',
+  'live_flows',
   'asof_snapshot',
   'asof_flow_summary',
-  'live_wallets',
-  'live_flows',
   'price',
+  'attribution',
 ] as const
 export type SourceId = (typeof SOURCE_IDS)[number]
 

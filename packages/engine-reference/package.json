@@ -1,0 +1,13 @@
+{
+  "name": "@then/engine-reference",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@then/core": "workspace:*",
+    "@then/engine": "workspace:*"
+  }
+}

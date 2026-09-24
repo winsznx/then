@@ -1,0 +1,14 @@
+{
+  "name": "@then/engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@then/core": "workspace:*",
+    "@then/nansen": "workspace:*",
+    "zod": "4.6.5"
+  }
+}
