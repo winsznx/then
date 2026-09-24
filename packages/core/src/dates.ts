@@ -65,3 +65,7 @@ export function settlementOf(asOfDate: string, clock: Clock = systemClock): Sett
 export function lastSettledDay(clock: Clock = systemClock): string {
   return addDays(utcToday(clock), -1)
 }
+
+export function minDate(a: string, b: string): string {
+  return a < b ? a : b
+}

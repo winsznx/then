@@ -22,11 +22,11 @@ export const METHOD_VERSION = '2026-09-24'
 export const RECEIPT_ORIGINS = ['live_stamp', 'restamp', 'fixture'] as const
 export type ReceiptOrigin = (typeof RECEIPT_ORIGINS)[number]
 
+/** The three public reconstruction stages, in the order Inspect shows them. */
 export const SOURCE_CLASSES = [
   'historical_cohort',
   'dated_activity',
   'current_label_replay',
-  'reference_price',
 ] as const
 export type SourceClass = (typeof SOURCE_CLASSES)[number]
 

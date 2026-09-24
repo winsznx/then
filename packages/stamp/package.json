@@ -1,0 +1,14 @@
+{
+  "name": "@then/stamp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@then/core": "workspace:*",
+    "@then/engine": "workspace:*",
+    "@then/nansen": "workspace:*"
+  }
+}
