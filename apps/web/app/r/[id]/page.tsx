@@ -121,7 +121,7 @@ export default async function ReceiptPage({ params }: Props) {
           </span>
           <span>Stored receipt, not a live result</span>
           <span>
-            {ORIGIN_TEXT[receipt.origin]} made {formatStamp(receipt.generated_at)}
+            {ORIGIN_TEXT[receipt.origin]} {formatStamp(receipt.generated_at)}
           </span>
           <span>method {receipt.method_version}</span>
           <span className="flex items-center gap-2">
