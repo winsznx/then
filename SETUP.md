@@ -49,6 +49,7 @@ pnpm then <command> --help
 | `trade prepare <receipt> --wallet --amount` | Prepares a USDC buy for a verified VALID receipt: a paper intent by default, an unsigned transaction with `--live`. |
 | `corpus run` | Stamps the frozen corpus in file order with a credit reserve, reusing claims already stamped. |
 | `publish receipts <ids...>`, `publish corpus`, `publish challenge` | Loads verified receipts, corpus runs, and Challenge cases into the web app's database. |
+| `db migrate` | Creates or updates the tables in the web app's database. Run it before the first deploy to Cloudflare Workers, which never create tables. |
 | `fixtures` | Rewrites `fixtures/receipts`: one synthetic, fixture-signed bundle per engine scenario. Deterministic. |
 | `mcp` | Serves the `verdict_smart_money_claim` tool over stdio. |
 | `account` | Shows the Nansen plan and remaining credits (free call). |
@@ -87,6 +88,44 @@ Every bundle is recomputed and publicly verified before it is published; anythin
 
 ## Hosting
 
+The public deployment, https://then.timjosh507.workers.dev, runs on Cloudflare Workers with Postgres on Supabase. The same app also builds as a container image for any Node host.
+
+### Cloudflare Workers
+
+`pnpm --filter @then/web build:cf` builds the app with [vinext](https://github.com/cloudflare/vinext), a Vite implementation of the Next.js API, into a Worker. `deploy:cf` builds and deploys it with wrangler. Settings live in `apps/web/wrangler.jsonc`, and neither command reads `.env`.
+
+A Worker cannot keep a database socket between requests, so each request opens one Postgres connection and closes it once the response and its background work are done. Put a pooler in front of Postgres: on Supabase, the transaction pooler (port 6543) for the Worker and the session pooler (port 5432) for the CLI. The Worker never creates tables, so do that and load the data from your machine first:
+
+```bash
+export DATABASE_URL='postgres://<user>:<password>@<pooler host>:5432/postgres'
+pnpm then db migrate
+pnpm then publish corpus ...     # and publish challenge / publish receipts, as above
+```
+
+Secrets go in a JSON file kept outside the repository:
+
+```json
+{
+  "NANSEN_API_KEY": "...",
+  "DATABASE_URL": "postgres://<user>:<password>@<pooler host>:6543/postgres",
+  "THEN_RECEIPT_SIGNING_KEY": "<openssl rand -hex 32>",
+  "THEN_SESSION_SECRET": "<openssl rand -hex 32>"
+}
+```
+
+```bash
+cd apps/web
+pnpm deploy:cf --secrets-file ~/then-worker-secrets.json --var THEN_GIT_SHA:$(git rev-parse HEAD)
+```
+
+- Settings that are not secret, including `THEN_PUBLIC_BASE_URL` and `THEN_TRUSTED_RECEIPT_KEYS`, are `vars` in `wrangler.jsonc`.
+- `placement.region` runs the Worker next to the database. A page makes several round trips to Postgres and one to the visitor. Without the hint the Worker ran in the visitor's nearest data center: from Cape Town to a database in Ireland the landing page took over 5 seconds, and about 1 second with it. Set it to your database's region, or use `{ "mode": "smart" }`.
+- Cloudflare never shows a secret again once it is set, so keep a copy of the signing key. If it is ever replaced, add the old public key to `THEN_TRUSTED_RECEIPT_KEYS` as `hosted:<hex>` so the receipts it signed still verify.
+- A stamp runs inside the request that starts it and streams its progress, so the end of a response does not cut it short. If the visitor leaves, Workers let it run for 30 more seconds.
+- `pnpm --filter @then/web preview:cf` runs the built Worker locally in workerd. Pass settings with `--env-file`, using an absolute path: wrangler resolves a relative one against `dist/server`.
+
+### Container
+
 The repository's `Dockerfile` builds the web app as a Next.js standalone server. It reads all configuration from the environment and no `.env` file.
 
 ```bash
@@ -98,7 +137,9 @@ docker run -p 3000:3000 \
   then-web
 ```
 
-In production the app refuses to stamp without `THEN_RECEIPT_SIGNING_KEY` and refuses Challenge answers without `THEN_SESSION_SECRET`; it never invents either. The schema is created on first start. Publish receipts to the hosted database by running `then publish` with `DATABASE_URL` set, and add the CLI key to `THEN_TRUSTED_RECEIPT_KEYS` so they verify.
+The container keeps one database pool per process and creates the schema on first start.
+
+In production the app refuses to stamp without `THEN_RECEIPT_SIGNING_KEY` and refuses Challenge answers without `THEN_SESSION_SECRET`; it never invents either. Publish receipts to the hosted database by running `then publish` with `DATABASE_URL` set, and add the CLI key to `THEN_TRUSTED_RECEIPT_KEYS` so they verify.
 
 ## MCP
 
@@ -112,7 +153,7 @@ Stdio, with your own key (receipts are written locally):
 }
 ```
 
-A hosted deployment serves the same tool over Streamable HTTP at `https://<deployment>/api/mcp`, with that deployment's limits and receipt links.
+A hosted deployment serves the same tool over Streamable HTTP at `https://<deployment>/api/mcp` (for the public one, https://then.timjosh507.workers.dev/api/mcp), with that deployment's limits and receipt links.
 
 ## Tests
 
@@ -127,3 +168,14 @@ docker build -f Dockerfile.verify -t then-verify . && docker run --rm --network 
 ```
 
 The end-to-end suite never reads `.env`; it runs with a sentinel key and checks that the key reaches no page and no script.
+
+The same suite runs against the Cloudflare build in workerd, with a throwaway local Postgres:
+
+```bash
+docker run -d --name then-e2e-pg -p 127.0.0.1:55432:5432 -e POSTGRES_PASSWORD=then-e2e postgres:17
+pnpm --filter @then/web build:cf
+E2E_DATABASE_URL=postgres://postgres:then-e2e@127.0.0.1:55432/postgres \
+  pnpm --filter @then/web exec playwright test -c playwright.workers.config.ts
+```
+
+The seed refuses any database that is not on this machine before it resets it. Two tests that need a separate address per visitor are tagged `@limit` and run only in the Node suite, since workerd reports one local address.

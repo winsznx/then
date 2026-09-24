@@ -76,11 +76,22 @@ receipts/<receipt_id>/
 ## Web app
 
 - Pages render per request so each one carries a fresh CSP nonce. The browser can connect only to its own origin.
-- `POST /api/stamp` validates the claim, applies the ten-minute reuse window, the per-client hourly limit, and the credit floor, then runs the orchestrator after the response. The browser polls `/api/stamp/:job/status` and never computes a verdict.
+- `POST /api/stamp` validates the claim and applies the ten-minute reuse window, the per-client hourly limit, and the credit floor. An accepted stamp runs inside that request and streams one JSON line per event: accepted with the job id, each stage as it resolves, then the receipt or the failure. If the stream drops, the browser polls `/api/stamp/:job/status`. It never computes a verdict.
 - Stored receipts are served as replays (`X-THEN-MODE: replay`). Only a stamp made in the current session is shown as LIVE STAMP.
 - The Challenge sends the claim and a commitment before a guess, and the verdict and receipt only in the response to the player's own committed guess.
 - `/api/mcp` is a stateless Streamable HTTP MCP endpoint that awaits the stamp in the request.
 - Operator routes under `/api/internal` (private evidence, ablation, Daily assignment) are off unless enabled and then need a bearer token.
+
+## Hosting
+
+The web app builds two ways from the same source.
+
+| Build | Command | Runs on | Database |
+|---|---|---|---|
+| Next.js standalone server | `pnpm build` | any Node host (`Dockerfile`) | one pool per process, migrated on first use |
+| Cloudflare Worker (vinext) | `pnpm --filter @then/web build:cf` | Cloudflare Workers (the public deployment) | one connection per request, migrated by `then db migrate` |
+
+On Workers, `apps/web/cloudflare/worker.ts` wraps vinext's handler. Each request runs in its own AsyncLocalStorage scope; the first query opens a Postgres connection there, and the entry closes it once the response body has been sent and every `waitUntil` task (the `after()` work, a stamp whose visitor left) has settled. The Worker is placed next to the database (`placement.region`), since a page makes several round trips to Postgres and only one to the visitor. The embedded store is swapped for a stub in this build, the build never reads `.env`, and Google fonts are downloaded at build time and served from the app's origin.
 
 ## Determinism
 

@@ -12,6 +12,8 @@ THEN rebuilds the claim twice, once with today's labels and once with the cohort
 
 Every stamp writes a signed receipt that anyone can check, in the browser or offline.
 
+Try it at https://then.timjosh507.workers.dev: replay the stored receipts, verify them in the browser, and play the Challenge. New stamps there pause while the demo's Nansen credits are low.
+
 ![A THEN receipt: today's labels support the claim, the cohort of the day supports it, verdict VALID](docs/images/receipt.png)
 
 THEN does not predict price. VALID means the dated Smart Money cohort supports the claim, not that the trade is good.
@@ -73,7 +75,7 @@ Forty public Smart Money claims were chosen and frozen on 24 Sep 2026, before TH
 - They disagreed on support on 0 of 13, so no verdict changed. Under the threshold used then (2% of the window's DEX volume), neither side of any buy claim could reach support.
 - The support rule for buy and sell claims was revised (method 2026-09-24.2) and is being tested on the 27 claims it has not seen. That run has not happened, so **no disagreement rate is claimed**.
 
-Every row and receipt is on the evidence page of the running app (`/corpus`).
+Every row and receipt is on the [evidence page](https://then.timjosh507.workers.dev/corpus).
 
 ## Limits
 
@@ -83,7 +85,7 @@ THEN cannot tell you whether a trade is good, cannot stamp the current UTC day, 
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): packages, the one path from claim to receipt, Nansen endpoints and costs.
 - [SECURITY.md](SECURITY.md): what is protected, how, and which test proves it.
-- MCP: `pnpm then mcp` serves the `verdict_smart_money_claim` tool to agents over stdio; hosted deployments serve it at `/api/mcp`.
+- MCP: `pnpm then mcp` serves the `verdict_smart_money_claim` tool to agents over stdio; hosted deployments serve it at `/api/mcp` (https://then.timjosh507.workers.dev/api/mcp).
 
 Point-in-time market intelligence powered by the [Nansen API](https://docs.nansen.ai).
 
