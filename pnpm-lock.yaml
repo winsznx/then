@@ -127,6 +127,12 @@ importers:
         specifier: workspace:*
         version: link:../engine
 
+  packages/intake:
+    dependencies:
+      '@then/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/nansen:
     dependencies:
       '@then/core':
