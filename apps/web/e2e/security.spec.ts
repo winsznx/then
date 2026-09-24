@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { ADMIN_TOKEN, SENTINEL_KEY } from './constants'
+import { ADMIN_TOKEN, MOCK_CLAIM, SENTINEL_KEY } from './constants'
 import { seed } from './state'
 
 const PAGES = [
@@ -180,18 +180,25 @@ test.describe('the hosted key is rate limited', () => {
   test('a stamp over the per-client limit is refused before Nansen is called', async ({
     request,
   }) => {
-    // #given a deployment whose limit is zero stamps per hour
-    // #when a valid claim is submitted
-    const response = await request.post('/api/stamp', {
-      data: {
-        claim_type: 'SM_BOUGHT',
-        chain: 'solana',
-        token_address: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
-        as_of_date: '2026-06-12',
-      },
+    // #given a client that has used its one stamp this hour
+    const headers = { 'x-forwarded-for': '10.0.0.2' }
+    const first = await request.post('/api/stamp', {
+      headers,
+      data: { ...MOCK_CLAIM, min_usd: 1500 },
+    })
+    await first.text()
+    // #when it asks for another
+    const second = await request.post('/api/stamp', {
+      headers,
+      data: { ...MOCK_CLAIM, min_usd: 1600 },
     })
     // #then it is refused with 429
-    expect({ status: response.status(), code: (await response.json()).error.code }).toEqual({
+    expect({
+      first: first.status(),
+      status: second.status(),
+      code: (await second.json()).error.code,
+    }).toEqual({
+      first: 200,
       status: 429,
       code: 'RATE_LIMITED',
     })

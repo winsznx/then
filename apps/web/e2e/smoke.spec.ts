@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { MOCK_CLAIM } from './constants'
 import { seed } from './state'
 
 const WIDTHS = [390, 768, 1280, 1440]
@@ -41,11 +42,18 @@ test.describe('responsive smoke', () => {
   }
 
   test('Inspect shows the example as a replay and clears it for a new claim', async ({ page }) => {
-    // #given the example loaded
+    // #given a visitor who has used this hour's stamp, with the example loaded
+    await page.setExtraHTTPHeaders({ 'x-forwarded-for': '10.0.0.1' })
+    await (
+      await page.request.post('/api/stamp', {
+        headers: { 'x-forwarded-for': '10.0.0.1' },
+        data: { ...MOCK_CLAIM, min_usd: 1300 },
+      })
+    ).text()
     await page.goto('/inspect')
     await page.getByRole('button', { name: 'Load example' }).click()
     await expect(page.getByText('REPLAY', { exact: true })).toBeVisible()
-    // #when a stamp is attempted (this deployment allows none)
+    // #when another stamp is attempted
     await page.getByRole('button', { name: 'Stamp', exact: true }).click()
     // #then the old verdict is gone and the refusal names a next action
     await expect(page.getByText('No verdict was stamped')).toBeVisible()

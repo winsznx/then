@@ -5,10 +5,15 @@ import { randomBytes } from 'node:crypto'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-/** Repo root in development (apps/web → ../..), cwd in a packaged deployment. */
-const ROOT = existsSync(resolve(process.cwd(), '../../pnpm-workspace.yaml'))
-  ? resolve(process.cwd(), '../..')
-  : process.cwd()
+/**
+ * Repo root in development (apps/web → ../..), cwd in a packaged deployment. Computed on use so
+ * nothing reads the filesystem at load time (Cloudflare Workers have no project directory).
+ */
+function repoRoot(): string {
+  return existsSync(resolve(process.cwd(), '../../pnpm-workspace.yaml'))
+    ? resolve(process.cwd(), '../..')
+    : process.cwd()
+}
 
 /**
  * Development-only secrets are generated once and kept under .then/ (git-ignored). Production
@@ -16,7 +21,7 @@ const ROOT = existsSync(resolve(process.cwd(), '../../pnpm-workspace.yaml'))
  * refuses to run.
  */
 function devSecret(name: string): string {
-  const path = resolve(ROOT, '.then/keys', `${name}.hex`)
+  const path = resolve(repoRoot(), '.then/keys', `${name}.hex`)
   if (existsSync(path)) return readFileSync(path, 'utf8').trim()
   const secret = randomBytes(32).toString('hex')
   mkdirSync(dirname(path), { recursive: true })
@@ -32,10 +37,13 @@ function secret(envName: string, devName: string): string | null {
 
 export const env = {
   isProduction,
-  root: ROOT,
   nansenApiKey: process.env.NANSEN_API_KEY?.trim() || null,
   databaseUrl: process.env.DATABASE_URL?.trim() || null,
-  pgliteDir: resolve(ROOT, process.env.THEN_PGLITE_DIR ?? '.then/pglite'),
+  /** Test-only override of the Nansen API origin (the e2e suite points it at a local mock). */
+  nansenBaseUrl: process.env.THEN_NANSEN_BASE_URL?.trim() || null,
+  get pgliteDir(): string {
+    return resolve(repoRoot(), process.env.THEN_PGLITE_DIR ?? '.then/pglite')
+  },
   signingSeed: secret('THEN_RECEIPT_SIGNING_KEY', 'web-signing-key'),
   sessionSecret: secret('THEN_SESSION_SECRET', 'web-session-secret'),
   trustedKeys: process.env.THEN_TRUSTED_RECEIPT_KEYS ?? '',

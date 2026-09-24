@@ -15,6 +15,7 @@ let client: NansenClient | undefined
 export function nansen(): NansenClient {
   client ??= new NansenClient({
     apiKey: env.nansenApiKey ?? undefined,
+    ...(env.nansenBaseUrl ? { baseUrl: env.nansenBaseUrl } : {}),
     disableHistorical: env.disableHistorical,
     logger: { info: (entry) => log('info', entry), warn: (entry) => log('warn', entry) },
   })
