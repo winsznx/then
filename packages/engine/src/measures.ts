@@ -89,8 +89,9 @@ export function tradeMeasure(
     valueUsd = endpointNetUsd(projection.trades)
     base.notes.push('PRICE_FALLBACK_ENDPOINT_USD')
   }
+  // A capped source is a partial sum: the rows past the cap could move it either way.
   if (projection.truncated) base.notes.push('ROW_CAP')
-  if (valueUsd === null) {
+  if (valueUsd === null || projection.truncated) {
     return {
       ...base,
       status: 'ok',

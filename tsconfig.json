@@ -9,5 +9,8 @@
     "apps/cli/src/**/*.ts",
     "apps/mcp/src/**/*.ts",
     "vitest.config.ts"
+  ],
+  "exclude": [
+    "packages/ui/**"
   ]
 }

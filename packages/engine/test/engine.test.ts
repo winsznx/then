@@ -178,6 +178,21 @@ describe('reason details', () => {
     expect(result.reasons).toContain('ROW_CAP')
   })
 
+  it('never decides from a capped as-of source', () => {
+    // #given
+    const scenario = SCENARIOS.find((s) => s.id === 'P2')!
+    const records = scenario.records.map((r) =>
+      r.source === 'asof_trades' ? { ...r, truncated: true } : r,
+    )
+    // #when
+    const result = evaluate(inputFor({ ...scenario, records }))
+    // #then
+    expect({ asof: result.asof.support, verdict: result.verdict }).toEqual({
+      asof: 'UNKNOWN',
+      verdict: 'INSUFFICIENT',
+    })
+  })
+
   it('names the upstream failure behind a missing as-of side', () => {
     // #given
     const scenario = SCENARIOS.find((s) => s.id === 'P4')!

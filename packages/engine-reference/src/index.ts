@@ -69,7 +69,7 @@ function tradeValue(trades: readonly Trade[], price: number | null): number | nu
 type Side = { known: boolean; value: number | null }
 
 function tradeSide(p: Projections['live_trades'], price: number | null): Side {
-  if (p.status !== 'ok') return { known: false, value: null }
+  if (p.status !== 'ok' || p.truncated) return { known: false, value: null }
   const value = tradeValue(p.trades, price)
   return { known: value !== null, value }
 }

@@ -65,10 +65,15 @@ export interface CorpusRunOptions {
 
 const ATTRIBUTION_RESERVE = 5
 
+/**
+ * Worst-case credits for one claim before the conditional attribution lookup. Trade claims page up
+ * to 3 times per side on multi-day windows (live 1 credit, historical 5 per page) plus one OHLCV
+ * call; single-day windows rarely need a second page.
+ */
 export function estimateCredits(claim: Claim): number {
   if (claim.claim_type === 'SM_HOLDS') return 3
   if (claim.claim_type === 'SM_PERP') return 0
-  return 7
+  return claim.window_hours > 24 ? 19 : 7
 }
 
 function emptyRow(claim: CorpusClaim): CorpusRow {
