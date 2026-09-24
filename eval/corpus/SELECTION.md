@@ -81,3 +81,9 @@ One JSON object per line in `claims.jsonl`:
 ## Not decided here
 
 Verdicts, support states, and forward returns come from THEN runs and the forward-outcome protocol. They never change this file or `claims.jsonl`. Claims that THEN cannot reconstruct stay in the corpus and are reported as coverage failures.
+
+## Deviation log
+
+**2026-09-24, during collection, before any THEN run.** The eight queries above returned only 3 qualifying claims: most results were Nansen's own documentation and guides rather than claims. To reach the 30-claim minimum, the collector ran 41 reworded variants of the same queries (adding a month, a chain, a token named in earlier results, or restricting the same query to crypto news domains, which is what query 8's `site:` operator does). Every variant and its result counts are listed in [`QUERIES.md`](QUERIES.md), and every reviewed-but-rejected candidate is in `rejected.jsonl` with the rule it failed.
+
+The variants changed where claims were found, not which ones qualified: the inclusion, exclusion, date, and role rules above were applied unchanged, no Nansen data was consulted during collection, and no verdict existed for any claim. Collection stopped at the 40-claim cap. Two consequences a reviewer should weigh: sources are concentrated (14 claims from AMBCrypto, 12 from The Edge), and four claims (pub_008 to pub_011) come from one automated post.
