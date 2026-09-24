@@ -6,9 +6,10 @@ import { notFound } from 'next/navigation'
 import { TemporalComparator } from '@/components/inspect/temporal-comparator'
 import { ReceiptActions } from '@/components/receipt/receipt-actions'
 import { RestampAction } from '@/components/receipt/restamp-action'
+import { WalletTable } from '@/components/receipt/wallet-table'
 import { VERDICT_STYLE, VerdictWord } from '@/components/verdict/verdict'
 import { chainName, formatDay, formatStamp, usdFull } from '@/lib/format'
-import { loadReceiptView, type RestampEntry } from '@/lib/server/receipts'
+import { loadReceiptView, walletDetail, type RestampEntry } from '@/lib/server/receipts'
 import { ClaimSentence } from '@/components/verdict/claim-sentence'
 
 interface Props {
@@ -106,6 +107,7 @@ export default async function ReceiptPage({ params }: Props) {
   const view = await loadReceiptView((await params).id)
   if (!view) notFound()
   const { receipt, report, restamps, driftFromOriginal } = view
+  const wallets = await walletDetail(receipt.receipt_id)
   const fixture = receipt.origin === 'fixture' || report.signer?.role === 'fixture'
   const failed = report.checks.filter((check) => !check.ok)
   const style = VERDICT_STYLE[receipt.verdict]
@@ -290,6 +292,24 @@ export default async function ReceiptPage({ params }: Props) {
                   .
                 </p>
               ) : null}
+            </DocketRow>
+          ) : null}
+
+          {wallets ? (
+            <DocketRow title="Wallet-level diagnostics" id="wallets">
+              <p>
+                Shown because this deployment records Nansen&apos;s written approval for
+                wallet-level detail. Without it, THEN publishes aggregate support only.
+              </p>
+              {wallets.kind === 'trades' ? (
+                wallets.rows.length > 0 ? (
+                  <WalletTable rows={wallets.rows} />
+                ) : (
+                  <p>Neither side counted a Smart Money wallet in the window.</p>
+                )
+              ) : (
+                <p>Holdings claims are compared in aggregate, so there is no wallet-level view.</p>
+              )}
             </DocketRow>
           ) : null}
 

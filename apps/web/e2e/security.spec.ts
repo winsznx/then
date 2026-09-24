@@ -105,16 +105,17 @@ test.describe('private evidence', () => {
     expect(statuses).toEqual([401, 401, 200])
   })
 
-  test('never appears in the public receipt', async ({ request }) => {
-    // #given a receipt's public JSON and its private bundle
+  test('never appears in the public receipt or its page', async ({ request }) => {
+    // #given a receipt's public JSON, its page, and its private bundle
     const id = seed().receipts.P1.receipt_id
-    const publicText = await (await request.get(`/api/receipt/${id}`)).text()
+    const publicText = `${await (await request.get(`/api/receipt/${id}`)).text()}${await (await request.get(`/r/${id}`)).text()}`
     const bundle = await (
       await request.get(`/api/internal/receipt/${id}/evidence`, {
         headers: { authorization: `Bearer ${ADMIN_TOKEN}` },
       })
     ).json()
-    const token = JSON.parse(publicText).claim.token_address as string
+    const token = (await (await request.get(`/api/receipt/${id}`)).json()).claim
+      .token_address as string
     const wallets = [
       ...new Set(
         (JSON.stringify(bundle.records)

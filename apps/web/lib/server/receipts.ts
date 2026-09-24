@@ -1,8 +1,10 @@
 import 'server-only'
 import { isReceiptId, type PublicReceipt } from '@then/core'
+import { project, walletRows, type WalletRow } from '@then/engine'
 import { verifyPublic, type DriftReport, type VerifyReport } from '@then/receipt'
 import { cache } from 'react'
 import { getRepo } from './db'
+import { env } from './env'
 import { trustedKeys } from './keys'
 import { log } from './nansen'
 
@@ -72,5 +74,29 @@ export async function exampleReceipt(): Promise<PublicReceipt | null> {
       error: error instanceof Error ? error.message : String(error),
     })
     return null
+  }
+}
+
+export type WalletDetail = { kind: 'trades'; rows: WalletRow[] } | { kind: 'aggregate' }
+
+/**
+ * Wallet-level diagnostics for a receipt. Returns null unless THEN_PUBLIC_MEMBERSHIP_DETAIL is on,
+ * which a deployment may set only with Nansen's written approval: this is Smart Money membership.
+ */
+export async function walletDetail(receiptId: string): Promise<WalletDetail | null> {
+  if (!env.publicMembershipDetail || !isReceiptId(receiptId)) return null
+  const bundle = await (await getRepo()).getPrivateBundle(receiptId)
+  if (!bundle) return null
+  const body = bundle.internal.body
+  if (body.claim.claim_type !== 'SM_BOUGHT' && body.claim.claim_type !== 'SM_SOLD')
+    return { kind: 'aggregate' }
+  const projections = project(bundle.records, {
+    window: body.window,
+    chain: body.claim.chain,
+    token_address: body.claim.token_address,
+  })
+  return {
+    kind: 'trades',
+    rows: walletRows(projections.live_trades, projections.asof_trades, body.summary.price_vwap_usd),
   }
 }

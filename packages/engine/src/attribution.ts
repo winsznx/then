@@ -5,8 +5,13 @@ import {
   type SmLabel,
   type WalletDiagnostics,
 } from '@then/core'
-import { directionOf } from './measures'
-import type { AttributionProjection, HoldingsProjection } from './projection'
+import { directionOf, netTokensByWallet } from './measures'
+import type {
+  AttributionProjection,
+  HoldingsProjection,
+  Trade,
+  TradeProjection,
+} from './projection'
 
 /** The as-of and current-label holdings series must agree this closely on some recent settled day. */
 export const CALIBRATION_TOLERANCE = 0.02
@@ -140,4 +145,63 @@ export function aggregateDiagnostics(
     calibration_error: calibration.error,
     calibration_day: calibration.day,
   }
+}
+
+export interface WalletRow {
+  wallet: string
+  bucket: 'overlap' | 'live_only' | 'asof_only'
+  /** Net tokens over the window: buys positive, sells negative. Null when the side has no trades. */
+  live_net_tokens: number | null
+  asof_net_tokens: number | null
+  /** Valued at the window VWAP, from the as-of side when the wallet has one. */
+  net_usd: number | null
+  live_label: string | null
+  asof_label: string | null
+}
+
+function lastLabels(trades: readonly Trade[]): Map<string, string | null> {
+  const labels = new Map<string, string | null>()
+  for (const trade of [...trades].sort((a, b) => a.block_time.localeCompare(b.block_time)))
+    labels.set(trade.trader, trade.label)
+  return labels
+}
+
+/**
+ * Per-wallet view of a buy or sell claim: which wallets each side counted, their net flow, and
+ * the label each side saw. Private by default: this is Smart Money membership, shown only where
+ * Nansen has approved wallet-level detail. Sorted by absolute USD, largest first.
+ */
+export function walletRows(
+  live: TradeProjection,
+  asof: TradeProjection,
+  vwap: number | null,
+): WalletRow[] {
+  const liveNet = netTokensByWallet(live.trades)
+  const asofNet = netTokensByWallet(asof.trades)
+  const liveLabel = lastLabels(live.trades)
+  const asofLabel = lastLabels(asof.trades)
+  const wallets = [...new Set([...liveNet.keys(), ...asofNet.keys()])]
+  const rows = wallets.map((wallet): WalletRow => {
+    const liveTokens = liveNet.get(wallet) ?? null
+    const asofTokens = asofNet.get(wallet) ?? null
+    const tokens = asofTokens ?? liveTokens
+    return {
+      wallet,
+      bucket:
+        liveTokens !== null && asofTokens !== null
+          ? 'overlap'
+          : liveTokens !== null
+            ? 'live_only'
+            : 'asof_only',
+      live_net_tokens: liveTokens,
+      asof_net_tokens: asofTokens,
+      net_usd: vwap !== null && tokens !== null ? tokens * vwap : null,
+      live_label: liveLabel.get(wallet) ?? null,
+      asof_label: asofLabel.get(wallet) ?? null,
+    }
+  })
+  return rows.sort(
+    (a, b) =>
+      Math.abs(b.net_usd ?? 0) - Math.abs(a.net_usd ?? 0) || a.wallet.localeCompare(b.wallet),
+  )
 }

@@ -3,9 +3,9 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { decide, parseClaim } from '@then/core'
 import { referenceEvaluate } from '@then/engine-reference'
-import { SCENARIOS, scenarioWindow, type Scenario } from '@then/fixtures'
+import { SCENARIOS, runFromScenario, scenarioWindow, type Scenario } from '@then/fixtures'
 import { describe, expect, it } from 'vitest'
-import { evaluate, project, type EngineInput } from '../src'
+import { evaluate, project, walletRows, type EngineInput } from '../src'
 
 function inputFor(scenario: Scenario): EngineInput {
   const window = scenarioWindow(scenario)
@@ -341,5 +341,25 @@ describe('engine purity', () => {
     } finally {
       globalThis.fetch = original
     }
+  })
+})
+
+describe('wallet-level diagnostics', () => {
+  it('buckets the planted buyer as counted only by today’s labels', () => {
+    // #given the planted-contamination scenario
+    const scenario = SCENARIOS.find((s) => s.id === 'P1')!
+    const run = runFromScenario(scenario)
+    const projections = project(run.records, {
+      window: run.window,
+      chain: scenario.claim.chain,
+      token_address: scenario.claim.token_address,
+    })
+    // #when its wallets are listed
+    const rows = walletRows(projections.live_trades, projections.asof_trades, 1)
+    // #then the large buyer is live-only, the small one overlaps, and the largest comes first
+    expect(rows.map((row) => [row.bucket, row.live_net_tokens, row.asof_net_tokens])).toEqual([
+      ['live_only', 5000, null],
+      ['overlap', 500, 500],
+    ])
   })
 })
