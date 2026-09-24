@@ -10,6 +10,7 @@ import { evaluate, project, type EngineInput } from '../src'
 function inputFor(scenario: Scenario): EngineInput {
   const window = scenarioWindow(scenario)
   return {
+    method_version: scenario.method_version,
     claim: scenario.claim,
     window,
     settlement: scenario.settlement,
@@ -208,7 +209,7 @@ describe('reason details', () => {
     // #when
     const result = evaluate(inputFor(scenario))
     // #then
-    expect(result.threshold).toMatchObject({ usd: 1000, basis: 'min_usd' })
+    expect(result.threshold).toMatchObject({ usd: 2000, basis: 'min_usd' })
   })
 
   it('marks recent claim dates', () => {
@@ -244,6 +245,43 @@ describe('reason details', () => {
       overlap_wallets: 1,
       contamination_usd_share: 5000 / 5500,
     })
+  })
+})
+
+describe('method versions', () => {
+  it('judges a flow claim against the claim floor under 2026-09-24.2', () => {
+    // #given
+    const scenario = SCENARIOS.find((s) => s.id === 'flow-floor')!
+    // #when
+    const result = evaluate(inputFor(scenario))
+    // #then
+    expect({ verdict: result.verdict, threshold: result.threshold.usd }).toEqual({
+      verdict: 'VALID',
+      threshold: 2000,
+    })
+  })
+
+  it('replays an original 2026-09-24 receipt under its own volume-relative rule', () => {
+    // #given
+    const scenario = SCENARIOS.find((s) => s.id === 'flow-floor')!
+    // #when
+    const result = evaluate({ ...inputFor(scenario), method_version: '2026-09-24' })
+    // #then
+    expect({ verdict: result.verdict, threshold: result.threshold.usd }).toEqual({
+      verdict: 'INSUFFICIENT',
+      threshold: 20000,
+    })
+  })
+
+  it('keeps the volume-relative threshold for holdings in both methods', () => {
+    // #given
+    const scenario = SCENARIOS.find((s) => s.id === 'P8')!
+    // #when
+    const thresholds = (['2026-09-24', '2026-09-24.2'] as const).map(
+      (method) => evaluate({ ...inputFor(scenario), method_version: method }).threshold.basis,
+    )
+    // #then
+    expect(thresholds).toEqual(['volume', 'volume'])
   })
 })
 

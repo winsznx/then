@@ -94,6 +94,11 @@ export const FlowsRowSchema = z.looseObject({
   holders_count: int,
   total_inflows_count: num,
   total_outflows_count: num,
+  /** Populated only for label=exchange; null otherwise. */
+  total_inflows_dex: num,
+  total_outflows_dex: num,
+  total_inflows_cex: num,
+  total_outflows_cex: num,
 })
 export const FlowsSchema = z.looseObject({
   data: z.array(FlowsRowSchema),

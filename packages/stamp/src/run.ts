@@ -10,6 +10,7 @@ import {
   type SourceClass,
 } from '@then/core'
 import {
+  CURRENT_METHOD,
   evaluate,
   project,
   type EngineInput,
@@ -151,6 +152,7 @@ export async function runStamp(claim: Claim, options: StampOptions): Promise<Sta
   const emit = options.onProgress ?? (() => {})
 
   const engineBase: Omit<EngineInput, 'projections'> = {
+    method_version: CURRENT_METHOD,
     claim,
     window,
     settlement,

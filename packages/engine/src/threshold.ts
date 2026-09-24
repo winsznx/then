@@ -2,7 +2,34 @@ import { dateRange, type Claim, type ClaimWindow, type ThresholdResult } from '@
 import type { Candle, PriceProjection } from './projection'
 
 export const VOLUME_SHARE = 0.02
-export const THRESHOLD_RULE = 'max(min_usd, 0.02 × DEX volume over the claim window)'
+
+type ThresholdRule = 'volume_share' | 'min_usd'
+
+const RULE_TEXT: Record<ThresholdRule, string> = {
+  volume_share: 'max(min_usd, 0.02 × DEX volume over the claim window)',
+  min_usd: 'min_usd in the claimed direction',
+}
+
+/**
+ * Support thresholds per published method version. Receipts replay under the version they were
+ * stamped with, so old receipts keep verifying after a rule changes.
+ *
+ * 2026-09-24.2: flow claims are judged against the claim's own materiality floor. Comparing one
+ * cohort's net flow with the token's gross volume made true public buy claims on liquid tokens
+ * unconfirmable (see METHOD.md). Holdings keep the volume-relative threshold.
+ */
+export const METHOD_RULES = {
+  '2026-09-24': { flow: 'volume_share', holds: 'volume_share' },
+  '2026-09-24.2': { flow: 'min_usd', holds: 'volume_share' },
+} as const satisfies Record<string, { flow: ThresholdRule; holds: ThresholdRule }>
+
+export type MethodVersion = keyof typeof METHOD_RULES
+
+export const CURRENT_METHOD: MethodVersion = '2026-09-24.2'
+
+export function isMethodVersion(value: string): value is MethodVersion {
+  return value in METHOD_RULES
+}
 
 function candlesByDate(price: PriceProjection): Map<string, Candle> {
   return new Map(price.candles.map((candle) => [candle.date, candle]))
@@ -25,21 +52,35 @@ export function windowVolumeUsd(price: PriceProjection, window: ClaimWindow): nu
   return total
 }
 
+export function thresholdRuleFor(claim: Claim, method: MethodVersion): ThresholdRule {
+  return claim.claim_type === 'SM_HOLDS' ? METHOD_RULES[method].holds : METHOD_RULES[method].flow
+}
+
 export function computeThreshold(
   claim: Claim,
   price: PriceProjection,
   window: ClaimWindow,
+  method: MethodVersion = CURRENT_METHOD,
 ): ThresholdResult {
+  const rule = thresholdRuleFor(claim, method)
   const volume = windowVolumeUsd(price, window)
+  if (rule === 'min_usd') {
+    return { usd: claim.min_usd, basis: 'min_usd', volume_usd: volume, rule: RULE_TEXT.min_usd }
+  }
   if (volume === null) {
-    return { usd: claim.min_usd, basis: 'min_usd', volume_usd: null, rule: THRESHOLD_RULE }
+    return { usd: claim.min_usd, basis: 'min_usd', volume_usd: null, rule: RULE_TEXT.volume_share }
   }
   return {
     usd: Math.max(claim.min_usd, VOLUME_SHARE * volume),
     basis: 'volume',
     volume_usd: volume,
-    rule: THRESHOLD_RULE,
+    rule: RULE_TEXT.volume_share,
   }
+}
+
+/** True when a volume-relative rule had to fall back to the minimum because volume was unknown. */
+export function volumeFallback(threshold: ThresholdResult): boolean {
+  return threshold.rule === RULE_TEXT.volume_share && threshold.volume_usd === null
 }
 
 export interface ReferencePrices {

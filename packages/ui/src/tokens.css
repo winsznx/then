@@ -1,0 +1,90 @@
+/*
+ * Temporal Ledger design tokens. Light mode only.
+ * Blue marks the historical cut and the primary stamp action. Green, burnt orange, and stone
+ * belong to VALID, CONTAMINATED, and INSUFFICIENT and appear nowhere else. Nansen green is only
+ * for attribution.
+ */
+:root {
+  --paper-0: #f7f4ed;
+  --paper-1: #fcfbf7;
+  --paper-2: #eee9de;
+  --ink-0: #121210;
+  --ink-1: #3a3934;
+  --ink-2: #6e6b63;
+  --line-0: #d9d3c8;
+  --line-strong: #aaa398;
+  --time-blue: #2f5eff;
+  --time-blue-deep: #2143c7;
+  --time-blue-wash: #e9eeff;
+  --valid: #0e7256;
+  --valid-wash: #e9f5f0;
+  --contaminated: #a54411;
+  --contaminated-wash: #fff0e5;
+  --insufficient: #6b675f;
+  --insufficient-wash: #efebe4;
+  --nansen-attribution: #19c99a;
+  --white: #ffffff;
+
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 12px;
+  --radius-round: 999px;
+
+  --shadow-1: 0 1px 2px rgb(18 18 16 / 0.05);
+  --shadow-float: 0 16px 44px rgb(18 18 16 / 0.08);
+
+  --ease-standard: cubic-bezier(0.2, 0.75, 0.25, 1);
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur-ui: 220ms;
+  --dur-reconstruct: 420ms;
+
+  --page-max: 1440px;
+  --content-max: 1280px;
+  --reading-max: 700px;
+  --inset: 48px;
+  --gutter: 24px;
+  --header-h: 76px;
+  --header-h-condensed: 60px;
+  --section-gap-lg: 144px;
+  --section-gap-md: 96px;
+
+  --z-base: 0;
+  --z-raised: 10;
+  --z-header: 40;
+  --z-overlay: 60;
+  --z-toast: 80;
+}
+
+@media (max-width: 1439px) {
+  :root {
+    --inset: 32px;
+    --gutter: 20px;
+  }
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --inset: 24px;
+    --section-gap-lg: 112px;
+    --section-gap-md: 80px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --inset: 18px;
+    --gutter: 16px;
+    --header-h: 60px;
+    --section-gap-lg: 88px;
+    --section-gap-md: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-ui: 100ms;
+    --dur-reconstruct: 100ms;
+  }
+}

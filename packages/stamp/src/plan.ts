@@ -39,8 +39,9 @@ export interface PlanOptions {
 const DAILY_RANGE_MIN_DAYS = 8
 
 /**
- * Which Nansen calls a claim needs. Every as-of request ends on the claim date; nothing asks
- * point-in-time endpoints about a later day.
+ * Which Nansen calls a claim needs. Point-in-time trade and flow requests end on the claim date.
+ * The holdings snapshot request can reach recent days for calibration only: snapshot rows are
+ * immutable per day, so a later row never changes the claim-date row the verdict uses.
  */
 export function planStamp(claim: Claim, window: ClaimWindow, options: PlanOptions): StampPlan {
   const coverage = CHAIN_COVERAGE[claim.chain]

@@ -29,9 +29,11 @@ import {
   type TradeMeasure,
 } from './measures'
 import type { Projections } from './projection'
-import { computeThreshold, referencePrices } from './threshold'
+import { computeThreshold, referencePrices, volumeFallback, type MethodVersion } from './threshold'
 
 export interface EngineInput {
+  /** Published method the verdict follows; receipts replay under the version they were stamped with. */
+  method_version: MethodVersion
   claim: Claim
   window: ClaimWindow
   settlement: Settlement
@@ -59,7 +61,8 @@ export interface EngineResult {
 }
 
 export const FORMULAS: Record<string, string> = {
-  threshold_usd: 'max(min_usd, 0.02 × Σ volume_usd over the claim window)',
+  threshold_usd:
+    'flow claims: min_usd; holds claims: max(min_usd, 0.02 × Σ volume_usd over the claim window)',
   net_flow_usd: '(Σ BUY token_amount − Σ SELL token_amount) × VWAP over the claim window',
   holdings_usd: 'Smart Money token amount on the claim date × close on the claim date',
   label_only_live_usd: 'asof_net_usd + live_only_net_usd − asof_only_net_usd',
@@ -111,7 +114,7 @@ function pushUnique(list: ReasonCode[], code: ReasonCode): void {
 
 export function evaluate(input: EngineInput): EngineResult {
   const { claim, window, projections } = input
-  const threshold = computeThreshold(claim, projections.price, window)
+  const threshold = computeThreshold(claim, projections.price, window, input.method_version)
   const prices = referencePrices(projections.price, window)
   const isTradeClaim = claim.claim_type === 'SM_BOUGHT' || claim.claim_type === 'SM_SOLD'
 
@@ -264,7 +267,7 @@ export function evaluate(input: EngineInput): EngineResult {
     }
   }
   for (const reason of reasons) pushUnique(ordered, reason)
-  if (threshold.basis === 'min_usd' && projections.price.status !== 'not_run')
+  if (volumeFallback(threshold) && projections.price.status !== 'not_run')
     pushUnique(ordered, 'THRESHOLD_VOLUME_UNKNOWN')
   if (input.settlement === 'recent') pushUnique(ordered, 'RECENT_WINDOW')
   if (fundIncluded(claim.sm_label_set)) pushUnique(ordered, 'FUND_INCLUDED')

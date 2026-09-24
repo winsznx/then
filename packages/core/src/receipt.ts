@@ -15,8 +15,8 @@ import type { Claim, PublicClaim } from './claim'
 
 export const RECEIPT_VERSION = '1.0.0'
 export const ENGINE_VERSION = '1.0.0'
-/** Version of the published method: reconstructions, support rules, verdict rule. */
-export const METHOD_VERSION = '2026-09-24'
+/** Current published method: reconstructions, support rules, verdict rule. */
+export const METHOD_VERSION = '2026-09-24.2'
 
 /** How the receipt came to exist. Display modes (LIVE STAMP / REPLAY) are decided by the renderer. */
 export const RECEIPT_ORIGINS = ['live_stamp', 'restamp', 'fixture'] as const

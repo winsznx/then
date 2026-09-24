@@ -9,7 +9,7 @@ import {
   type SupportState,
   type Verdict,
 } from '@then/core'
-import type { SourceRecord } from '@then/engine'
+import { CURRENT_METHOD, type MethodVersion, type SourceRecord } from '@then/engine'
 import {
   TOKEN,
   asofSnapshot,
@@ -32,6 +32,7 @@ export const CALIBRATION_WINDOW = { from: '2026-09-15', to: '2026-09-22' }
 export interface Scenario {
   id: string
   title: string
+  method_version: MethodVersion
   claim: Claim
   settlement: Settlement
   ablation: boolean
@@ -63,7 +64,9 @@ function claim(overrides: Partial<Claim> = {}): Claim {
       '180D Smart Trader',
       'Smart HL Perps Trader',
     ],
-    min_usd: 1000,
+    // 2,000 equals 2% of the standard 100,000 volume, so every threshold is the same under both
+    // published methods and the scenarios pin rules that did not change.
+    min_usd: 2000,
     quote_asset: 'USD',
     ...overrides,
   }
@@ -76,6 +79,7 @@ const standardPrice = price([
 ])
 
 const base = {
+  method_version: CURRENT_METHOD,
   settlement: 'settled' as Settlement,
   ablation: false,
   surface_available: true,
@@ -391,8 +395,8 @@ export const SCENARIOS: Scenario[] = [
     claim: claim(),
     ...base,
     records: [
-      liveTrades([{ trader: 1, action: 'BUY', amount: 1, usd: 1500, day: D, n: 1 }]),
-      asofTrades([{ trader: 1, action: 'BUY', amount: 1, usd: 1500, day: D, n: 1 }]),
+      liveTrades([{ trader: 1, action: 'BUY', amount: 1, usd: 2500, day: D, n: 1 }]),
+      asofTrades([{ trader: 1, action: 'BUY', amount: 1, usd: 2500, day: D, n: 1 }]),
       failed('price', {
         kind: 'upstream',
         code: 'internal_error',
@@ -422,6 +426,26 @@ export const SCENARIOS: Scenario[] = [
       reason: 'NEITHER_SUPPORTS',
       asof_support: 'NO',
       live_support: 'NO',
+    },
+  },
+  {
+    id: 'flow-floor',
+    title: 'Liquid token: Smart Money net-bought 5,000 USD against 1M USD of volume',
+    claim: claim(),
+    ...base,
+    records: [
+      liveTrades([{ trader: 1, action: 'BUY', amount: 5000, day: D, n: 1 }]),
+      asofTrades([{ trader: 1, action: 'BUY', amount: 5000, day: D, n: 1 }]),
+      price([
+        { day: PREV, close: 1, volume: 1_000_000, volume_usd: 1_000_000 },
+        { day: D, close: 1, volume: 1_000_000, volume_usd: 1_000_000 },
+      ]),
+    ],
+    expected: {
+      verdict: 'VALID',
+      reason: 'ASOF_COHORT_SUPPORTS',
+      asof_support: 'YES',
+      live_support: 'YES',
     },
   },
   {

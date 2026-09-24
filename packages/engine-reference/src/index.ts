@@ -29,7 +29,11 @@ function days(window: ClaimWindow): string[] {
   return out
 }
 
-function threshold(claim: Claim, p: Projections, window: ClaimWindow): number {
+/** Methods where flow claims are judged against the claim's own floor instead of volume. */
+const FLOOR_FOR_FLOWS = new Set(['2026-09-24.2'])
+
+function threshold(claim: Claim, p: Projections, window: ClaimWindow, method: string): number {
+  if (claim.claim_type !== 'SM_HOLDS' && FLOOR_FOR_FLOWS.has(method)) return claim.min_usd
   if (p.price.status !== 'ok' || p.price.candles.length === 0) return claim.min_usd
   const wanted = new Set(days(window))
   const inWindow = p.price.candles.filter((c) => wanted.has(c.date))
@@ -118,7 +122,7 @@ function verdictTable(input: {
  */
 export function referenceEvaluate(input: EngineInput, attributed: boolean | null): ReferenceResult {
   const { claim, window, projections: p } = input
-  const t = threshold(claim, p, window)
+  const t = threshold(claim, p, window, input.method_version)
   const direction = claim.claim_type === 'SM_SOLD' ? -1 : 1
   const isTrade = claim.claim_type === 'SM_BOUGHT' || claim.claim_type === 'SM_SOLD'
   const asofSide = isTrade

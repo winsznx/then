@@ -12,7 +12,7 @@ import {
   type InternalReceipt,
   type PublicReceipt,
 } from '@then/core'
-import { evaluate, project, type SourceRecord } from '@then/engine'
+import { evaluate, isMethodVersion, project, type SourceRecord } from '@then/engine'
 import { payloadHashesOf } from './build'
 import { toPublicReceipt } from './public'
 import { verifyHash, type KeyRole, type TrustedKey } from './sign'
@@ -212,7 +212,16 @@ export function verifyFull(bundle: PrivateBundle, publicReceipt?: PublicReceipt)
     chain: body.claim.chain,
     token_address: body.claim.token_address,
   })
+  if (!isMethodVersion(body.method_version)) {
+    checks.push({
+      name: 'method_version',
+      ok: false,
+      detail: `unknown method ${body.method_version}`,
+    })
+    return report(checks)
+  }
   const result = evaluate({
+    method_version: body.method_version,
     claim: body.claim,
     window: body.window,
     settlement: body.settlement,

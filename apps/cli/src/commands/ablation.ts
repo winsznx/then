@@ -1,4 +1,4 @@
-import { evaluate, project, type SourceRecord } from '@then/engine'
+import { evaluate, isMethodVersion, project, type SourceRecord } from '@then/engine'
 import { FsReceiptStore, locateReceipt } from '@then/store'
 import { CliError, EXIT } from '../config'
 
@@ -30,7 +30,11 @@ export async function ablationCommand(target: string, options: { root: string })
         }
       : record,
   )
+  if (!isMethodVersion(body.method_version)) {
+    throw new CliError(`receipt uses unknown method ${body.method_version}`, EXIT.VERIFY_MISMATCH)
+  }
   const result = evaluate({
+    method_version: body.method_version,
     claim: body.claim,
     window: body.window,
     settlement: body.settlement,

@@ -33,6 +33,7 @@ const ENDPOINT_OF: Record<string, { id: string; path: string; surface: 'asof' | 
 export function runFromScenario(scenario: Scenario, now: string = FIXTURE_NOW) {
   const window = claimWindow(scenario.claim.as_of_date, scenario.claim.window_hours)
   const engineInput = {
+    method_version: scenario.method_version,
     claim: scenario.claim,
     window,
     settlement: scenario.settlement,
