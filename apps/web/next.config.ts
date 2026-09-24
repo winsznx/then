@@ -2,9 +2,10 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { NextConfig } from 'next'
 
-// The monorepo keeps one .env at its root. Server-only: nothing here is NEXT_PUBLIC_.
-const rootEnv = resolve(process.cwd(), '../../.env')
-if (existsSync(rootEnv)) process.loadEnvFile(rootEnv)
+// The monorepo keeps one .env at its root. Server-only: nothing here is NEXT_PUBLIC_. Variables
+// already in the environment win; THEN_ENV_FILE=none skips the file (the e2e suite sets it).
+const envFile = process.env.THEN_ENV_FILE ?? resolve(process.cwd(), '../../.env')
+if (envFile !== 'none' && existsSync(envFile)) process.loadEnvFile(envFile)
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
