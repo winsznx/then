@@ -10,14 +10,20 @@
     "binding": "ASSETS",
   },
   "observability": { "enabled": true },
-  // Runs the Worker near the database it talks to (one region) rather than near each visitor.
-  "placement": { "mode": "smart" },
+  // Runs the Worker next to its database (Supabase, AWS eu-west-1) instead of near each visitor:
+  // a page makes several round trips to Postgres and only one to the visitor. Change the region
+  // to match your database, or use { "mode": "smart" } when it is not in a public cloud region.
+  "placement": { "region": "aws:eu-west-1" },
   // Non-secret configuration. Secrets (NANSEN_API_KEY, DATABASE_URL, THEN_RECEIPT_SIGNING_KEY,
-  // THEN_SESSION_SECRET, THEN_ADMIN_TOKEN) are set with `wrangler secret put`.
+  // THEN_SESSION_SECRET) go up with `pnpm deploy:cf --secrets-file <file>` or
+  // `wrangler secret put`; see SETUP.md.
   "vars": {
     "NODE_ENV": "production",
     "THEN_TRADE_MODE": "paper",
     "THEN_STAMP_LIMIT_PER_HOUR": "10",
     "THEN_GITHUB_URL": "https://github.com/winsznx/then",
+    "THEN_PUBLIC_BASE_URL": "https://then.timjosh507.workers.dev",
+    // Public key of the operator's CLI key, which signed the published corpus receipts.
+    "THEN_TRUSTED_RECEIPT_KEYS": "local:085422825f8b1d80966c5e976d577ea4793dc885f0715bef224f0886419686a8",
   },
 }
