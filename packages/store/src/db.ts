@@ -41,6 +41,8 @@ export async function postgresDb(url: string, options: { max?: number } = {}): P
     idle_timeout: 20,
     connect_timeout: 10,
     prepare: false,
+    // Server notices ("already exists, skipping" from idempotent migrations) are not errors.
+    onnotice: () => undefined,
   })
   type Runner = { unsafe: (text: string, params?: never[]) => Promise<unknown> }
   const wrap = (runner: Runner, root: boolean): Db => ({
