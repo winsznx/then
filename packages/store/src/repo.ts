@@ -133,6 +133,21 @@ export class ThenRepository {
     }))
   }
 
+  /** How much this deployment serves publicly. One round trip. */
+  async publicCounts(): Promise<{ receipts: number; cases: number; corpusRuns: number }> {
+    const rows = await this.db.query<Record<string, unknown>>(
+      `select (select count(*) from receipts_public) as receipts,
+              (select count(*) from challenge_cases) as cases,
+              (select count(*) from corpus_runs) as corpus_runs`,
+    )
+    const row = rows[0] ?? {}
+    return {
+      receipts: Number(row.receipts ?? 0),
+      cases: Number(row.cases ?? 0),
+      corpusRuns: Number(row.corpus_runs ?? 0),
+    }
+  }
+
   async featuredReceipt(): Promise<PublicReceipt | null> {
     const rows = await this.db.query<{ public_json: unknown }>(
       `select public_json from receipts_public where featured order by generated_at desc limit 1`,

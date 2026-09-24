@@ -25,6 +25,7 @@ test.describe('responsive smoke', () => {
         '/method',
         '/limits',
         '/about-data',
+        '/status',
         `/r/${seed().receipts.P1.receipt_id}`,
       ]
       const overflow: string[] = []

@@ -19,6 +19,7 @@ test.describe('accessibility', () => {
     '/method',
     '/limits',
     '/about-data',
+    '/status',
     `/r/${seed().receipts.P1.receipt_id}`,
   ]
 

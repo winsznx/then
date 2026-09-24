@@ -56,4 +56,10 @@ export const env = {
   /** Wallet-level membership detail needs recorded written approval from Nansen. Off by default. */
   publicMembershipDetail: process.env.THEN_PUBLIC_MEMBERSHIP_DETAIL === '1',
   githubUrl: process.env.THEN_GITHUB_URL ?? 'https://github.com/winsznx/then',
+  /** The deployed commit, recorded in receipts and shown on /status. */
+  gitSha:
+    process.env.THEN_GIT_SHA ??
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.RAILWAY_GIT_COMMIT_SHA ??
+    null,
 }

@@ -82,6 +82,16 @@ describe('receipts', () => {
     // #then
     expect(result).toBeNull()
   })
+
+  it('counts what the deployment serves', async () => {
+    // #given one more receipt than before
+    const before = await repo.publicCounts()
+    await repo.putReceipt(bundle('P4'))
+    // #when
+    const after = await repo.publicCounts()
+    // #then
+    expect(after).toEqual({ ...before, receipts: before.receipts + 1 })
+  })
 })
 
 describe('challenge attempts', () => {

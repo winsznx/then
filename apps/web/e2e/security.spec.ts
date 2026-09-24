@@ -11,6 +11,7 @@ const PAGES = [
   '/method',
   '/limits',
   '/about-data',
+  '/status',
 ]
 
 test.describe('the Nansen key never reaches the browser', () => {

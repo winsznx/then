@@ -30,23 +30,31 @@ export const CREDIT_FLOOR = 25
 const RATE_LIMIT_COOLDOWN_MS = 60_000
 let coolingUntil = 0
 
+/** Why no new stamp can start, whatever the claim or visitor. */
+export type StampUnavailable = 'NO_API_KEY' | 'NO_SIGNING_KEY' | 'QUOTA_REACHED' | 'UPSTREAM_BUSY'
+
 /** Outcomes decided before Nansen is called. */
 export type EarlyResult =
   | { kind: 'invalid'; issues: { path: string; message: string }[] }
-  | {
-      kind: 'unavailable'
-      reason: 'NO_API_KEY' | 'NO_SIGNING_KEY' | 'QUOTA_REACHED' | 'UPSTREAM_BUSY'
-    }
+  | { kind: 'unavailable'; reason: StampUnavailable }
   | { kind: 'rate_limited'; limit: number }
   | { kind: 'existing'; receipt: PublicReceipt }
 
-function gitSha(): string | null {
-  return (
-    process.env.THEN_GIT_SHA ??
-    process.env.VERCEL_GIT_COMMIT_SHA ??
-    process.env.RAILWAY_GIT_COMMIT_SHA ??
-    null
-  )
+/** Nansen recently rate-limited a stamp, or the key has too few credits left for one. */
+async function capacityGap(): Promise<'UPSTREAM_BUSY' | 'QUOTA_REACHED' | null> {
+  if (Date.now() < coolingUntil) return 'UPSTREAM_BUSY'
+  const credits = await remainingCredits()
+  return credits !== null && credits < CREDIT_FLOOR ? 'QUOTA_REACHED' : null
+}
+
+/**
+ * Whether a new stamp could start right now, leaving out what depends on the claim (the reuse
+ * window) or the visitor (the hourly limit). Null when it could.
+ */
+export async function stampingAvailability(): Promise<StampUnavailable | null> {
+  if (!env.nansenApiKey) return 'NO_API_KEY'
+  if (!hostedSigningKey()) return 'NO_SIGNING_KEY'
+  return capacityGap()
 }
 
 type Prepared =
@@ -83,12 +91,8 @@ async function prepare(input: unknown, client: string): Promise<Prepared> {
   if (before >= env.stampsPerHour)
     return { kind: 'early', result: { kind: 'rate_limited', limit: env.stampsPerHour } }
 
-  if (Date.now() < coolingUntil)
-    return { kind: 'early', result: { kind: 'unavailable', reason: 'UPSTREAM_BUSY' } }
-
-  const credits = await remainingCredits()
-  if (credits !== null && credits < CREDIT_FLOOR)
-    return { kind: 'early', result: { kind: 'unavailable', reason: 'QUOTA_REACHED' } }
+  const busy = await capacityGap()
+  if (busy) return { kind: 'early', result: { kind: 'unavailable', reason: busy } }
 
   const jobId = randomId('job')
   await repo.createJob(jobId, hash, client)
@@ -127,7 +131,7 @@ async function runJob(
       await repo.finishJob(jobId, { error: 'API_KEY_REJECTED' })
       return { ok: false, error: 'API_KEY_REJECTED' }
     }
-    const bundle = buildReceipt(run, { origin: 'live_stamp', gitSha: gitSha(), signer })
+    const bundle = buildReceipt(run, { origin: 'live_stamp', gitSha: env.gitSha, signer })
     await repo.putReceipt(bundle)
     await repo.finishJob(jobId, { receipt_id: bundle.receipt_id })
     await repo.recordEvent(

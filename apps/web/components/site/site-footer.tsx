@@ -17,6 +17,7 @@ const COLUMNS = [
     links: [
       { href: 'github', label: 'GitHub' },
       { href: '/about-data', label: 'Data and attribution' },
+      { href: '/status', label: 'Status' },
       { href: '/.well-known/then-receipt-keys', label: 'Receipt signing keys' },
     ],
   },
