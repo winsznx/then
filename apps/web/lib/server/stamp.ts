@@ -183,14 +183,13 @@ export async function streamStamp(input: unknown, client: string): Promise<Strea
   if (prepared.kind === 'early') return prepared.result
   const encoder = new TextEncoder()
   let open = true
-  let finished: Promise<JobResult> | undefined
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
       const send = (event: StampEvent) => {
         if (open) controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`))
       }
       send({ type: 'accepted', job_id: prepared.jobId })
-      finished = runJob(prepared, (event) =>
+      const finished = runJob(prepared, (event) =>
         send({ type: 'stage', stage: event.stage, status: event.status }),
       ).then((result) => {
         send(
@@ -200,13 +199,13 @@ export async function streamStamp(input: unknown, client: string): Promise<Strea
         )
         if (open) controller.close()
         open = false
-        return result
       })
+      // Registered while the request is still in scope, so a visitor who leaves mid-stamp does
+      // not cancel it: the host keeps it running (where it allows) and the receipt is recorded.
+      after(finished)
     },
     cancel() {
       open = false
-      // The visitor left; let the stamp finish and record its receipt where the host allows it.
-      if (finished) after(finished)
     },
   })
   return { kind: 'stream', body }
