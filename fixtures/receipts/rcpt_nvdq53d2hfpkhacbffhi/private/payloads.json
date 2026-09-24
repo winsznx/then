@@ -1,0 +1,44 @@
+[
+  {
+    "endpoint": "tgm.dex_trades",
+    "method": "POST",
+    "path": "/api/v1/tgm/dex-trades",
+    "surface": "live",
+    "request": {
+      "fixture": "live_trades",
+      "page": 1
+    },
+    "request_hash": "sha256:546f48b490b6fc01b9f9671e47c7ed340db3b2ca374a354be917c392417276b1",
+    "status": 200,
+    "body": "{\"data\":[{\"block_timestamp\":\"2026-06-12T12:00:00Z\",\"transaction_hash\":\"0x0000000000000000000000000000000000000000000000000000000000000001\",\"trader_address\":\"0x0000000000000000000000000000000000000001\",\"trader_address_label\":\"Smart Trader\",\"action\":\"BUY\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_name\":\"FIXTURE\",\"token_amount\":1,\"traded_token_address\":\"0x0000000000000000000000000000000000000000\",\"traded_token_name\":\"ETH\",\"traded_token_amount\":1,\"estimated_swap_price_usd\":1,\"estimated_value_usd\":2500}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:dfeb6edd09fca13c72454fab41f3b1827253d479c26b34f7ae4e3924141656fc",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  },
+  {
+    "endpoint": "hist.dex_trades",
+    "method": "POST",
+    "path": "/api/v1beta1/tgm/historical-dex-trades",
+    "surface": "asof",
+    "request": {
+      "fixture": "asof_trades",
+      "page": 1
+    },
+    "request_hash": "sha256:0b346422a462fa3ca2ba7fdd80258353da80c7d4ac7f33762eadeed8a090dd83",
+    "status": 200,
+    "body": "{\"data\":[{\"block_timestamp\":\"2026-06-12T12:00:00Z\",\"transaction_hash\":\"0x0000000000000000000000000000000000000000000000000000000000000001\",\"trader_address\":\"0x0000000000000000000000000000000000000001\",\"trader_address_label\":\"30D Smart Trader\",\"action\":\"BUY\",\"token_name\":\"FIXTURE\",\"token_amount\":1,\"traded_token_name\":\"ETH\",\"traded_token_amount\":1,\"estimated_swap_price_usd\":1,\"estimated_value_usd\":2500}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:c88191720b1573cd7ab486b06dc3cdb39fe5f8f39fb58fa7ec98f36086c115ea",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  }
+]

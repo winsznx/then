@@ -1,4 +1,5 @@
-import { parseClaim, type Claim, type PublicReceipt } from '@then/core'
+import { parseClaim, utcToday, type Claim, type PublicReceipt } from '@then/core'
+import { parseIntake, type Proposed } from '@then/intake'
 import { buildReceipt } from '@then/receipt'
 import { runStamp } from '@then/stamp'
 import { FsReceiptStore } from '@then/store'
@@ -13,10 +14,13 @@ import {
 import { receiptSummary } from '../print'
 
 export interface StampFlags {
-  chain: string
-  token: string
-  date: string
-  claim: string
+  chain?: string
+  token?: string
+  date?: string
+  claim?: string
+  fromUrl?: string
+  fromText?: string
+  published?: string
   windowHours?: string
   labels?: string
   minUsd?: string
@@ -34,7 +38,56 @@ export function exitCodeFor(receipt: PublicReceipt): number {
   return receipt.verdict === 'INSUFFICIENT' ? EXIT.INSUFFICIENT : EXIT.OK
 }
 
-export function claimFromFlags(flags: StampFlags): Claim {
+/**
+ * Explicit flags always win. A post link or text only fills fields left out, each one reported on
+ * stderr with the words it came from. A token named only by symbol is refused: the contract must
+ * be given, never guessed.
+ */
+function fillFromSource(flags: StampFlags): StampFlags {
+  if (!flags.fromUrl && !flags.fromText) return flags
+  const proposal = parseIntake({
+    ...(flags.fromUrl ? { url: flags.fromUrl } : {}),
+    ...(flags.fromText ? { text: flags.fromText } : {}),
+    reference_date: flags.published ?? utcToday(),
+  })
+  const take = <T>(
+    explicit: string | undefined,
+    field: Proposed<T> | undefined,
+    name: string,
+  ): string | undefined => {
+    if (explicit) return explicit
+    if (!field) return undefined
+    process.stderr.write(`  ${name} from source: ${String(field.value)} (“${field.evidence}”)\n`)
+    return String(field.value)
+  }
+  const filled: StampFlags = {
+    ...flags,
+    chain: take(flags.chain, proposal.chain, 'chain'),
+    token: take(flags.token, proposal.token_address, 'token'),
+    date: take(flags.date, proposal.as_of_date, 'date'),
+    claim: take(flags.claim, proposal.claim_type, 'claim'),
+    windowHours: take(flags.windowHours, proposal.window_hours, 'window hours'),
+    symbol: flags.symbol ?? proposal.token_symbol?.value,
+    sourceUrl: flags.sourceUrl ?? flags.fromUrl,
+    sourceText: flags.sourceText ?? flags.fromText,
+  }
+  if (!filled.token && proposal.token_symbol)
+    throw new CliError(
+      `the source names $${proposal.token_symbol.value} but not its contract. Pass --token <address>; THEN never guesses a contract.`,
+      EXIT.CONFIG,
+    )
+  for (const note of proposal.ambiguities) process.stderr.write(`  note: ${note}\n`)
+  return filled
+}
+
+export function claimFromFlags(input: StampFlags): Claim {
+  const flags = fillFromSource(input)
+  const missing = (['chain', 'token', 'date', 'claim'] as const).filter((key) => !flags[key])
+  if (missing.length > 0)
+    throw new CliError(
+      `missing ${missing.map((key) => `--${key}`).join(', ')}${input.fromUrl || input.fromText ? ' (the source did not state them clearly)' : ''}`,
+      EXIT.CONFIG,
+    )
   const parsed = parseClaim({
     claim_type: flags.claim,
     chain: flags.chain,
@@ -81,7 +134,7 @@ export async function stampCommand(flags: StampFlags): Promise<number> {
   else process.stdout.write(receiptSummary(bundle.public, dir))
   if (historicalDisabled()) {
     process.stderr.write(
-      'Historical Nansen surface disabled — THEN cannot stamp VALID or CONTAMINATED.\n',
+      'Historical Nansen surface disabled. THEN cannot stamp VALID or CONTAMINATED.\n',
     )
   }
   process.stderr.write(`credits used: ${run.credits_used}\n`)

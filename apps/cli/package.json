@@ -7,21 +7,29 @@
     "then": "./dist/then.mjs"
   },
   "scripts": {
-    "build": "tsup src/main.ts --format esm --target node24 --out-dir dist --clean --no-splitting --outExtension.js=.mjs && node -e \"const f='dist/main.mjs';const fs=require('fs');fs.renameSync(f,'dist/then.mjs')\""
+    "build": "tsup"
   },
   "dependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@modelcontextprotocol/sdk": "1.30.0",
+    "@noble/curves": "2.4.0",
     "@noble/hashes": "2.4.0",
     "@then/challenge": "workspace:*",
     "@then/core": "workspace:*",
     "@then/corpus": "workspace:*",
     "@then/engine": "workspace:*",
+    "@then/fixtures": "workspace:*",
+    "@then/intake": "workspace:*",
     "@then/mcp": "workspace:*",
     "@then/nansen": "workspace:*",
     "@then/receipt": "workspace:*",
     "@then/stamp": "workspace:*",
     "@then/store": "workspace:*",
-    "commander": "15.0.0"
+    "@then/trade": "workspace:*",
+    "@then/ui": "workspace:*",
+    "commander": "15.0.0",
+    "postgres": "3.4.9",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "tsup": "8.5.1"

@@ -1,0 +1,19 @@
+{
+  "receipt_id": "rcpt_llfph3k7d37itnmsnieq",
+  "claim_hash": "sha256:0a7a0bc1327e908b8c49878d1c892aa976828d3c237167f8f74b8845d3b439fb",
+  "internal_commitment": "sha256:9f1c5c778273eb22fc0f99b9261bef8fcbfbb0316dd0f69891b9378a1a449d23",
+  "payload_root": "sha256:d82286def7350dcd06dfae24c95a33f07e5fce156c0cbdd0a0c98b6086faa0fb",
+  "payload_count": 4,
+  "source_hashes": [
+    "sha256:274c2e87ff7c9544313b71862e73267d3dc689e11579f281f97ed8cb8733c1a2",
+    "sha256:2920d5440c8fa7b1be2d186167e9124ce310f10970b7c8dc157d95b6b498aecc",
+    "sha256:60d588639dd76596096ce19b52162d9643c0103c398921e0e9b2451d9e5a96f3",
+    "sha256:dcc58bda9274329a1302a7cb4a2cc09b8a064d53b08314c9543a1afe3bb3f5b1"
+  ],
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "then-6265d3bbc77b5096",
+    "public_hash": "sha256:6af30752e7cc8b7385ea21cabd9afc440c2c6128855ed8ac652c96df9fe60a3b",
+    "value": "0c1293360ae0b19db31e352834003918a845448ac8a6ed05082a33e608ae03908c34560902b3549df7eb867370c309d8b6b84665def4773b59b6a55a3952af05"
+  }
+}

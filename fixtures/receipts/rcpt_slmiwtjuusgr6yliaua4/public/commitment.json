@@ -1,0 +1,14 @@
+{
+  "receipt_id": "rcpt_slmiwtjuusgr6yliaua4",
+  "claim_hash": "sha256:4349b8e09b5661cfb2caf4e99bd275e86acc6f13f9ebac2ac12112ffb1de1071",
+  "internal_commitment": "sha256:7507c2219f55ebaa72c9d47b8aaf0dcaabd6e0bc3bb0b95ca2822d937bdb2163",
+  "payload_root": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "payload_count": 0,
+  "source_hashes": [],
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "then-6265d3bbc77b5096",
+    "public_hash": "sha256:e176263d26e1e12d8387e7c5cae8bcf7075bf4adfb61accbace5c489f0e18389",
+    "value": "bc0ae28aef426773666cbfd44b0a9a457814f40d6329f640fd1d9ad45b5b7d1334455b265a98b5fbbaaa14ddf0df15197b63dfad9791ce0e992a3f5ac3508903"
+  }
+}

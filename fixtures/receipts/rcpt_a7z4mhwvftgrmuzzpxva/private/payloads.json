@@ -1,0 +1,65 @@
+[
+  {
+    "endpoint": "tgm.dex_trades",
+    "method": "POST",
+    "path": "/api/v1/tgm/dex-trades",
+    "surface": "live",
+    "request": {
+      "fixture": "live_trades",
+      "page": 1
+    },
+    "request_hash": "sha256:546f48b490b6fc01b9f9671e47c7ed340db3b2ca374a354be917c392417276b1",
+    "status": 200,
+    "body": "{\"data\":[],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:274c2e87ff7c9544313b71862e73267d3dc689e11579f281f97ed8cb8733c1a2",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  },
+  {
+    "endpoint": "hist.dex_trades",
+    "method": "POST",
+    "path": "/api/v1beta1/tgm/historical-dex-trades",
+    "surface": "asof",
+    "request": {
+      "fixture": "asof_trades",
+      "page": 1
+    },
+    "request_hash": "sha256:0b346422a462fa3ca2ba7fdd80258353da80c7d4ac7f33762eadeed8a090dd83",
+    "status": 200,
+    "body": "{\"data\":[{\"block_timestamp\":\"2026-06-12T12:00:00Z\",\"transaction_hash\":\"0x0000000000000000000000000000000000000000000000000000000000000003\",\"trader_address\":\"0x0000000000000000000000000000000000000003\",\"trader_address_label\":\"30D Smart Trader\",\"action\":\"BUY\",\"token_name\":\"FIXTURE\",\"token_amount\":3000,\"traded_token_name\":\"ETH\",\"traded_token_amount\":1,\"estimated_swap_price_usd\":1,\"estimated_value_usd\":3000}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:651d996fe2f253e3311554a37fc6b68157d76f67192786380b4c905793f0de85",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  },
+  {
+    "endpoint": "tgm.token_ohlcv",
+    "method": "POST",
+    "path": "/api/v1/tgm/token-ohlcv",
+    "surface": "meta",
+    "request": {
+      "fixture": "price",
+      "page": 1
+    },
+    "request_hash": "sha256:2cafd48c5a8cda97b6d6cdcdfd3cd9a08dc9762119479a5bb1e241d959d83d78",
+    "status": 200,
+    "body": "{\"chain\":\"ethereum\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"timeframe\":\"1d\",\"data\":[{\"interval_start\":\"2026-06-11T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}},{\"interval_start\":\"2026-06-12T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}}],\"truncated\":false}",
+    "body_hash": "sha256:dcc58bda9274329a1302a7cb4a2cc09b8a064d53b08314c9543a1afe3bb3f5b1",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  }
+]

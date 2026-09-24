@@ -1,0 +1,65 @@
+[
+  {
+    "endpoint": "tgm.flows",
+    "method": "POST",
+    "path": "/api/v1/tgm/flows",
+    "surface": "live",
+    "request": {
+      "fixture": "live_flows",
+      "page": 1
+    },
+    "request_hash": "sha256:c6569460fef7556579d9d60e1da4a2b24fa909fb4811f7fe7516b9a639a4689c",
+    "status": 200,
+    "body": "{\"data\":[{\"date\":\"2026-06-12T00:00:00Z\",\"bucket_end\":\"2026-06-12T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":50000,\"value_usd\":50000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0},{\"date\":\"2026-09-20T00:00:00Z\",\"bucket_end\":\"2026-09-20T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":1000,\"value_usd\":1000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0},{\"date\":\"2026-09-21T00:00:00Z\",\"bucket_end\":\"2026-09-21T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":1000,\"value_usd\":1000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:9f70e982ffd6eea938e65f3a6ca445410d8391f1fe8f018d8f787c7165757dd4",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  },
+  {
+    "endpoint": "sm.historical_holdings",
+    "method": "POST",
+    "path": "/api/v1/smart-money/historical-holdings",
+    "surface": "asof",
+    "request": {
+      "fixture": "asof_snapshot",
+      "page": 1
+    },
+    "request_hash": "sha256:01d1d9ef9ed967e0c7b0839f0c38ead20cebaec7f169fad3a008f573841e6a99",
+    "status": 200,
+    "body": "{\"data\":[{\"date\":\"2026-06-11\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":100,\"value_usd\":100,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-06-12\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":100,\"value_usd\":100,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-09-20\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":1030,\"value_usd\":1030,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-09-21\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":1000,\"value_usd\":1000,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}",
+    "body_hash": "sha256:cd64675ac6410bc9313b5c131632ae8b58ff8d792c4d8a707b1734ba01748b63",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  },
+  {
+    "endpoint": "tgm.token_ohlcv",
+    "method": "POST",
+    "path": "/api/v1/tgm/token-ohlcv",
+    "surface": "meta",
+    "request": {
+      "fixture": "price",
+      "page": 1
+    },
+    "request_hash": "sha256:2cafd48c5a8cda97b6d6cdcdfd3cd9a08dc9762119479a5bb1e241d959d83d78",
+    "status": 200,
+    "body": "{\"chain\":\"ethereum\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"timeframe\":\"1d\",\"data\":[{\"interval_start\":\"2026-06-11T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}},{\"interval_start\":\"2026-06-12T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}}],\"truncated\":false}",
+    "body_hash": "sha256:dcc58bda9274329a1302a7cb4a2cc09b8a064d53b08314c9543a1afe3bb3f5b1",
+    "fetched_at": "2026-09-24T10:00:00.000Z",
+    "latency_ms": 0,
+    "attempt": 1,
+    "credits_cost": 0,
+    "credits_used": 0,
+    "credits_remaining": null,
+    "request_id": null
+  }
+]

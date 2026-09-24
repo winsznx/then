@@ -35,9 +35,7 @@ export async function verifyPublicCommand(
 
 /** Full offline recomputation from an authorized private bundle. Never calls Nansen. */
 export async function verifyCommand(target: string, options: { root: string }): Promise<number> {
-  const located =
-    locateReceipt(target) ??
-    (isReceiptId(target) ? { root: options.root, receiptId: target } : null)
+  const located = locateReceipt(target, options.root)
   if (!located)
     throw new CliError(`not a receipt id or a path inside a receipt bundle: ${target}`, EXIT.CONFIG)
   const store = new FsReceiptStore(located.root)

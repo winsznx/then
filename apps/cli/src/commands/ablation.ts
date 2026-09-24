@@ -9,7 +9,9 @@ const ASOF_SOURCES = new Set(['asof_trades', 'asof_snapshot', 'asof_flow_summary
  * holds only if the verdict collapses to INSUFFICIENT.
  */
 export async function ablationCommand(target: string, options: { root: string }): Promise<number> {
-  const located = locateReceipt(target) ?? { root: options.root, receiptId: target }
+  const located = locateReceipt(target, options.root)
+  if (!located)
+    throw new CliError(`not a receipt id or a path inside a receipt bundle: ${target}`, EXIT.CONFIG)
   const store = new FsReceiptStore(located.root)
   const bundle = await store.readPrivate(located.receiptId).catch(() => {
     throw new CliError(`no private bundle for ${target}`, EXIT.CONFIG)

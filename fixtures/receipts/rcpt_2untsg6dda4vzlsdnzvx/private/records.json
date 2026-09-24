@@ -1,0 +1,35 @@
+[
+  {
+    "source": "live_trades",
+    "status": "ok",
+    "bodies": [
+      "{\"data\":[{\"block_timestamp\":\"2026-06-12T12:00:00Z\",\"transaction_hash\":\"0x0000000000000000000000000000000000000000000000000000000000000001\",\"trader_address\":\"0x0000000000000000000000000000000000000001\",\"trader_address_label\":\"Smart Trader\",\"action\":\"BUY\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_name\":\"FIXTURE\",\"token_amount\":5000,\"traded_token_address\":\"0x0000000000000000000000000000000000000000\",\"traded_token_name\":\"ETH\",\"traded_token_amount\":1,\"estimated_swap_price_usd\":1,\"estimated_value_usd\":5000}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}"
+    ],
+    "truncated": false
+  },
+  {
+    "source": "asof_trades",
+    "status": "ok",
+    "bodies": [
+      "{\"data\":[],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}"
+    ],
+    "truncated": false
+  },
+  {
+    "source": "price",
+    "status": "ok",
+    "bodies": [
+      "{\"chain\":\"ethereum\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"timeframe\":\"1d\",\"data\":[{\"interval_start\":\"2026-06-11T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}},{\"interval_start\":\"2026-06-12T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}}],\"truncated\":false}"
+    ],
+    "truncated": false
+  },
+  {
+    "source": "attribution",
+    "status": "ok",
+    "bodies": [
+      "{\"data\":[],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}"
+    ],
+    "truncated": false,
+    "wallet": "0x0000000000000000000000000000000000000001"
+  }
+]

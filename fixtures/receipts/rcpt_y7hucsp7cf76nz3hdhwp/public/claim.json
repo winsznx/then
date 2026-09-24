@@ -1,0 +1,17 @@
+{
+  "claim_type": "SM_BOUGHT",
+  "chain": "ethereum",
+  "token_address": "0x0000000000000000000000000000000000f1c7e0",
+  "as_of_date": "2026-06-12",
+  "window_hours": 24,
+  "sm_label_set": [
+    "Smart Trader",
+    "30D Smart Trader",
+    "90D Smart Trader",
+    "180D Smart Trader",
+    "Smart HL Perps Trader"
+  ],
+  "min_usd": 2000,
+  "quote_asset": "USD",
+  "token_symbol": "FIXTURE"
+}

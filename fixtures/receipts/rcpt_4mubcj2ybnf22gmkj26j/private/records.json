@@ -1,0 +1,26 @@
+[
+  {
+    "source": "live_flows",
+    "status": "ok",
+    "bodies": [
+      "{\"data\":[{\"date\":\"2026-06-12T00:00:00Z\",\"bucket_end\":\"2026-06-12T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":50000,\"value_usd\":50000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0},{\"date\":\"2026-09-20T00:00:00Z\",\"bucket_end\":\"2026-09-20T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":1000,\"value_usd\":1000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0},{\"date\":\"2026-09-21T00:00:00Z\",\"bucket_end\":\"2026-09-21T23:59:59Z\",\"is_complete\":true,\"price_usd\":1,\"token_amount\":1000,\"value_usd\":1000,\"holders_count\":3,\"total_inflows_count\":0,\"total_outflows_count\":0}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}"
+    ],
+    "truncated": false
+  },
+  {
+    "source": "asof_snapshot",
+    "status": "ok",
+    "bodies": [
+      "{\"data\":[{\"date\":\"2026-06-11\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":100,\"value_usd\":100,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-06-12\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":100,\"value_usd\":100,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-09-20\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":1030,\"value_usd\":1030,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null},{\"date\":\"2026-09-21\",\"chain\":\"base\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"token_symbol\":\"FIXTURE\",\"token_sectors\":[],\"smart_money_labels\":[\"Smart Trader\"],\"balance\":1000,\"value_usd\":1000,\"balance_24h_percent_change\":0,\"holders_count\":3,\"share_of_holdings_percent\":0,\"token_age_days\":100,\"market_cap_usd\":null}],\"pagination\":{\"page\":1,\"per_page\":1000,\"is_last_page\":true}}"
+    ],
+    "truncated": false
+  },
+  {
+    "source": "price",
+    "status": "ok",
+    "bodies": [
+      "{\"chain\":\"ethereum\",\"token_address\":\"0x0000000000000000000000000000000000f1c7e0\",\"timeframe\":\"1d\",\"data\":[{\"interval_start\":\"2026-06-11T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}},{\"interval_start\":\"2026-06-12T00:00:00Z\",\"open\":1,\"high\":1,\"low\":1,\"close\":1,\"volume\":100000,\"volume_usd\":100000,\"market_cap\":{\"open\":null,\"high\":null,\"low\":null,\"close\":null}}],\"truncated\":false}"
+    ],
+    "truncated": false
+  }
+]

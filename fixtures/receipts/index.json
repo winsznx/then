@@ -1,0 +1,122 @@
+[
+  {
+    "scenario": "P1",
+    "title": "Planted contamination: the big buyer only carries the label today",
+    "receipt_id": "rcpt_nsirp74m5azh3zu7ytyy",
+    "verdict": "CONTAMINATED"
+  },
+  {
+    "scenario": "P1-request",
+    "title": "Contamination candidate before the historical lookup has run",
+    "receipt_id": "rcpt_dz4wh4c4443tn77nkb3q",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P1-was-sm",
+    "title": "Lookup shows the wallet was Smart Money at trade time, so no contamination",
+    "receipt_id": "rcpt_llfph3k7d37itnmsnieq",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P1-no-coverage",
+    "title": "Lookup finds no trades in the window: history may not cover it",
+    "receipt_id": "rcpt_2untsg6dda4vzlsdnzvx",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P2",
+    "title": "Healthy control: both cohorts support the claim",
+    "receipt_id": "rcpt_k6wiyy7nh3l4r64rqzf6",
+    "verdict": "VALID"
+  },
+  {
+    "scenario": "P2-left-cohort",
+    "title": "VALID although today’s labels miss it: the buyer has since left the cohort",
+    "receipt_id": "rcpt_a7z4mhwvftgrmuzzpxva",
+    "verdict": "VALID"
+  },
+  {
+    "scenario": "P3",
+    "title": "Missing snapshot: an empty historical series is not zero",
+    "receipt_id": "rcpt_m6e43ec4b6bytiy4ykqm",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P4",
+    "title": "Only current labels available: never VALID",
+    "receipt_id": "rcpt_bik5vqwqomvooswgihkt",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P5",
+    "title": "Claim date is today: refuse before any call",
+    "receipt_id": "rcpt_ptoyfwwkgei7r3k2a5zq",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P7",
+    "title": "Historical Nansen switched off: cannot stamp VALID or CONTAMINATED",
+    "receipt_id": "rcpt_3aobobs573tymvf72vet",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "P8",
+    "title": "Second chain, holdings claim: today’s cohort held far more, pair calibrated on recent days",
+    "receipt_id": "rcpt_4mubcj2ybnf22gmkj26j",
+    "verdict": "CONTAMINATED"
+  },
+  {
+    "scenario": "P8-uncalibrated",
+    "title": "Holdings pair never matches on recent days: difference not attributable",
+    "receipt_id": "rcpt_wu4o4nkvwbe5pbntq5rh",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "neither",
+    "title": "Neither cohort reaches the threshold",
+    "receipt_id": "rcpt_3lojma2ljyb3tlhnrhfb",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "conflict",
+    "title": "As-of trades say bought, the Smart Trader flow says sold above the threshold",
+    "receipt_id": "rcpt_nhdzemoqt3tgi5pjz4o7",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "same-wallet-delta",
+    "title": "Same wallet, endpoints disagree on size: not label drift",
+    "receipt_id": "rcpt_tugatbdh5pzmwlixmwbt",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "sold",
+    "title": "Sell claim mirrors the buy rules",
+    "receipt_id": "rcpt_c7azlmuefymkhlvh7zey",
+    "verdict": "CONTAMINATED"
+  },
+  {
+    "scenario": "no-price",
+    "title": "No price data: minimum threshold and endpoint USD",
+    "receipt_id": "rcpt_nvdq53d2hfpkhacbffhi",
+    "verdict": "VALID"
+  },
+  {
+    "scenario": "outside-window",
+    "title": "Trades outside the claim day never count",
+    "receipt_id": "rcpt_yflzfmpmydekc4tbuh7w",
+    "verdict": "INSUFFICIENT"
+  },
+  {
+    "scenario": "flow-floor",
+    "title": "Liquid token: Smart Money net-bought 5,000 USD against 1M USD of volume",
+    "receipt_id": "rcpt_y7hucsp7cf76nz3hdhwp",
+    "verdict": "VALID"
+  },
+  {
+    "scenario": "perp",
+    "title": "Perp claims have no dated Smart Money surface yet",
+    "receipt_id": "rcpt_slmiwtjuusgr6yliaua4",
+    "verdict": "INSUFFICIENT"
+  }
+]

@@ -3,13 +3,17 @@ import { ENDPOINTS } from '@then/nansen'
 import { Command } from 'commander'
 import { ablationCommand } from './commands/ablation'
 import { corpusRunCommand } from './commands/corpus'
+import { fixturesCommand } from './commands/fixtures'
 import { mcpCommand } from './commands/mcp'
+import { reportCommand } from './commands/report'
+import { restampCommand } from './commands/restamp'
 import {
   publishChallengeCommand,
   publishCorpusCommand,
   publishReceiptsCommand,
 } from './commands/publish'
 import { stampCommand } from './commands/stamp'
+import { tradePrepareCommand } from './commands/trade'
 import { verifyCommand, verifyPublicCommand } from './commands/verify'
 import { CliError, EXIT, loadDotEnv, localSigningKey, nansenClient } from './config'
 
@@ -41,14 +45,17 @@ function run<Args extends unknown[]>(action: (...args: Args) => Promise<number>)
 program
   .command('stamp')
   .description('Stamp one claim: VALID, CONTAMINATED, or INSUFFICIENT, with a receipt')
-  .requiredOption('--chain <chain>', 'ethereum, base, solana, bnb, arbitrum, monad, robinhood')
-  .requiredOption('--token <address>', 'token contract address')
-  .requiredOption('--date <YYYY-MM-DD>', 'claim date (UTC)')
-  .requiredOption('--claim <type>', 'SM_BOUGHT, SM_SOLD, SM_HOLDS, or SM_PERP')
+  .option('--chain <chain>', 'ethereum, base, solana, bnb, arbitrum, monad, robinhood')
+  .option('--token <address>', 'token contract address')
+  .option('--date <YYYY-MM-DD>', 'claim date (UTC)')
+  .option('--claim <type>', 'SM_BOUGHT, SM_SOLD, SM_HOLDS, or SM_PERP')
+  .option('--from-url <url>', 'fill missing fields from a post or page link')
+  .option('--from-text <text>', 'fill missing fields from the claim text')
+  .option('--published <YYYY-MM-DD>', 'publish date of the source, for "today" and "yesterday"')
   .option('--symbol <symbol>', 'token symbol for display')
   .option('--window-hours <hours>', 'claim window ending on the date, whole days up to 168')
   .option('--labels <list>', 'comma-separated Smart Money labels')
-  .option('--min-usd <usd>', 'minimum threshold in USD', '1000')
+  .option('--min-usd <usd>', 'minimum threshold in USD')
   .option('--source-url <url>', 'where the claim was published')
   .option('--source-text <text>', 'the claim text')
   .option('--corroborate', 'also read the Smart Trader flow summary (5 credits)')
@@ -75,6 +82,37 @@ program
   .description('Recompute the verdict offline from a private evidence bundle')
   .option('--root <dir>', 'receipt directory for bare ids', 'receipts')
   .action(run(verifyCommand))
+
+program
+  .command('restamp <receipt>')
+  .description('Stamp the same claim again as a new receipt and write drift.json beside it')
+  .option('--root <dir>', 'receipt directory for bare ids', 'receipts')
+  .option('--out <dir>', 'where to write the new receipt (default: next to the original)')
+  .option('--verbose', 'log every Nansen call to stderr')
+  .action(run(restampCommand))
+
+program
+  .command('report <receipt>')
+  .description('Write a standalone HTML page for a public receipt')
+  .option('--root <dir>', 'receipt directory for bare ids', 'receipts')
+  .option('--out <file>', 'output file (default: <receipt id>.html)')
+  .action(run(reportCommand))
+
+const trade = program.command('trade').description('Verdict-gated trade preparation')
+trade
+  .command('prepare <receipt>')
+  .description('Prepare a USDC buy for a VALID receipt (paper by default)')
+  .requiredOption('--wallet <address>', 'your Solana or Base wallet')
+  .requiredOption('--amount <usdc>', '5 to 1,000 USDC')
+  .option('--live', 'ask Nansen for an unsigned transaction instead of a paper intent')
+  .option('--root <dir>', 'receipt directory for bare ids', 'receipts')
+  .action(run(tradePrepareCommand))
+
+program
+  .command('fixtures')
+  .description('Write synthetic, fixture-signed receipt bundles for every engine scenario')
+  .option('--out <dir>', 'output directory', 'fixtures/receipts')
+  .action(run(fixturesCommand))
 
 program
   .command('ablation <receipt>')

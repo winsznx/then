@@ -1,0 +1,17 @@
+{
+  "receipt_id": "rcpt_nvdq53d2hfpkhacbffhi",
+  "claim_hash": "sha256:0a7a0bc1327e908b8c49878d1c892aa976828d3c237167f8f74b8845d3b439fb",
+  "internal_commitment": "sha256:09e88543f441961fae850cf112d03775425b09d06c917b00273f6da00edefbff",
+  "payload_root": "sha256:c0dd8eeae94c5f925e87aeaa146f0df970e742544c3093a7897014db9d426edd",
+  "payload_count": 2,
+  "source_hashes": [
+    "sha256:c88191720b1573cd7ab486b06dc3cdb39fe5f8f39fb58fa7ec98f36086c115ea",
+    "sha256:dfeb6edd09fca13c72454fab41f3b1827253d479c26b34f7ae4e3924141656fc"
+  ],
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "then-6265d3bbc77b5096",
+    "public_hash": "sha256:f1af6a754d6b6046ceda7801047ed9d4511185f2a9dba79b59030b1df70fb13d",
+    "value": "8fd084d77d0bb84f5b39d62be12c6c6a4ed568cc93852256a21ad39157674f7d67526a639dd020ed1c2302aa4898cabeccd3385db49a3cbe09f1ce3d07bca20e"
+  }
+}

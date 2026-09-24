@@ -1,0 +1,91 @@
+{
+  "kind": "then.receipt.public",
+  "receipt_version": "1.0.0",
+  "receipt_id": "rcpt_ptoyfwwkgei7r3k2a5zq",
+  "origin": "fixture",
+  "generated_at": "2026-09-24T10:00:00.000Z",
+  "method_version": "2026-09-24.2",
+  "engine_version": "1.0.0",
+  "claim": {
+    "claim_type": "SM_BOUGHT",
+    "chain": "ethereum",
+    "token_address": "0x0000000000000000000000000000000000f1c7e0",
+    "as_of_date": "2026-09-24",
+    "window_hours": 24,
+    "sm_label_set": [
+      "Smart Trader",
+      "30D Smart Trader",
+      "90D Smart Trader",
+      "180D Smart Trader",
+      "Smart HL Perps Trader"
+    ],
+    "min_usd": 2000,
+    "quote_asset": "USD",
+    "token_symbol": "FIXTURE"
+  },
+  "claim_hash": "sha256:607855a06ac60689b13f4c3d130f23f9f9c7244a835db65935023319c08f761f",
+  "verdict": "INSUFFICIENT",
+  "reasons": [
+    "DATE_NOT_SETTLED"
+  ],
+  "decision_inputs": {
+    "ablation": false,
+    "date_settled": false,
+    "surface_available": true,
+    "asof_floor_met": false,
+    "asof_conflict": false,
+    "asof_support": "UNKNOWN",
+    "live_floor_met": false,
+    "live_support": "UNKNOWN",
+    "label_drift_attributed": null
+  },
+  "comparison": {
+    "live_label_replay_support": "UNKNOWN",
+    "asof_support": "UNKNOWN",
+    "difference": "UNKNOWN",
+    "public_explanation": "The claim date has not settled. Historical snapshots exist only for past UTC days."
+  },
+  "evidence": {
+    "historical_cutoff": "2026-09-24",
+    "window": {
+      "from": "2026-09-24",
+      "to": "2026-09-24"
+    },
+    "threshold": {
+      "usd": 2000,
+      "basis": "min_usd",
+      "rule": "min_usd in the claimed direction"
+    },
+    "sources": [
+      {
+        "class": "historical_cohort",
+        "status": "not_run"
+      },
+      {
+        "class": "dated_activity",
+        "status": "not_run"
+      },
+      {
+        "class": "current_label_replay",
+        "status": "not_run"
+      }
+    ],
+    "settlement": "unsettled",
+    "powered_by": "Nansen API"
+  },
+  "commitments": {
+    "claim_hash": "sha256:607855a06ac60689b13f4c3d130f23f9f9c7244a835db65935023319c08f761f",
+    "internal_commitment": "sha256:266ef853eccf6ee878405bcd575761c77656801d98292ffa875904a1851bb5c6",
+    "payload_root": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "payload_count": 0,
+    "source_hashes": []
+  },
+  "restatement_notice": "Nansen recomputes historical results at request time and may restate them after late data, pricing fixes, or label-history corrections. This receipt records what was fetched when it was stamped. A later restamp can differ; the original never changes.",
+  "disclaimer": "THEN does not predict price. VALID means the dated Smart Money cohort supports the claim, not that the trade is good.",
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "then-6265d3bbc77b5096",
+    "public_hash": "sha256:27f75dba7bb6aa1b5ab2f99116fd59b963419bb36992aa1f90b8664f6b09c5c3",
+    "value": "a3539381223848f8d8b19cbfb652cfb41ff24cb2f98f8661d291b2f31c6238939e79575be38721fed48659622f9909bd7f7dd323d82bf74216a1dc3085d27107"
+  }
+}

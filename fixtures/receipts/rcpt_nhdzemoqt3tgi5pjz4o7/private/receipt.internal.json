@@ -1,0 +1,223 @@
+{
+  "receipt_id": "rcpt_nhdzemoqt3tgi5pjz4o7",
+  "body": {
+    "kind": "then.receipt.internal",
+    "receipt_version": "1.0.0",
+    "origin": "fixture",
+    "generated_at": "2026-09-24T10:00:00.000Z",
+    "method_version": "2026-09-24.2",
+    "engine_version": "1.0.0",
+    "then_git_sha": null,
+    "claim": {
+      "claim_type": "SM_BOUGHT",
+      "chain": "ethereum",
+      "token_address": "0x0000000000000000000000000000000000f1c7e0",
+      "token_symbol": "FIXTURE",
+      "as_of_date": "2026-06-12",
+      "window_hours": 24,
+      "sm_label_set": [
+        "Smart Trader",
+        "30D Smart Trader",
+        "90D Smart Trader",
+        "180D Smart Trader",
+        "Smart HL Perps Trader"
+      ],
+      "min_usd": 2000,
+      "quote_asset": "USD"
+    },
+    "claim_hash": "sha256:0a7a0bc1327e908b8c49878d1c892aa976828d3c237167f8f74b8845d3b439fb",
+    "verdict": "INSUFFICIENT",
+    "reasons": [
+      "ASOF_SOURCES_CONFLICT"
+    ],
+    "decision_inputs": {
+      "ablation": false,
+      "date_settled": true,
+      "surface_available": true,
+      "asof_floor_met": true,
+      "asof_conflict": true,
+      "asof_support": "UNKNOWN",
+      "live_floor_met": true,
+      "live_support": "YES",
+      "label_drift_attributed": null
+    },
+    "asof": {
+      "side": "asof",
+      "floor_met": true,
+      "conflict": true,
+      "support": "UNKNOWN",
+      "measures": [
+        {
+          "source": "asof_trades",
+          "side": "asof",
+          "role": "primary",
+          "status": "ok",
+          "metric": "net_flow_usd",
+          "value_usd": 3000,
+          "support": "YES",
+          "opposes": false,
+          "notes": []
+        },
+        {
+          "source": "asof_flow_summary",
+          "side": "asof",
+          "role": "corroborating",
+          "metric": "net_flow_usd",
+          "notes": [],
+          "status": "ok",
+          "value_usd": -5000,
+          "support": "NO",
+          "opposes": true
+        }
+      ]
+    },
+    "live": {
+      "side": "live",
+      "floor_met": true,
+      "conflict": false,
+      "support": "YES",
+      "measures": [
+        {
+          "source": "live_trades",
+          "side": "live",
+          "role": "primary",
+          "status": "ok",
+          "metric": "net_flow_usd",
+          "value_usd": 3000,
+          "support": "YES",
+          "opposes": false,
+          "notes": []
+        }
+      ]
+    },
+    "threshold": {
+      "usd": 2000,
+      "basis": "min_usd",
+      "volume_usd": 100000,
+      "rule": "min_usd in the claimed direction"
+    },
+    "window": {
+      "from": "2026-06-12",
+      "to": "2026-06-12",
+      "days": 1
+    },
+    "settlement": "settled",
+    "surface_available": true,
+    "unavailable_reason": null,
+    "calibration_window": {
+      "from": "2026-09-15",
+      "to": "2026-09-22"
+    },
+    "summary": {
+      "wallets": {
+        "asof_wallets": 1,
+        "live_wallets": 1,
+        "overlap_wallets": 1,
+        "live_only_wallets": 0,
+        "asof_only_wallets": 0,
+        "asof_net_usd": 3000,
+        "live_net_usd": 3000,
+        "live_only_net_usd": 0,
+        "asof_only_net_usd": 0,
+        "overlap_method_delta_usd": 0,
+        "contamination_wallet_share": 0,
+        "contamination_usd_share": 0
+      },
+      "aggregate": null,
+      "price_close_usd": 1,
+      "price_vwap_usd": 1
+    },
+    "formulas": {
+      "threshold_usd": "flow claims: min_usd; holds claims: max(min_usd, 0.02 × Σ volume_usd over the claim window)",
+      "net_flow_usd": "(Σ BUY token_amount − Σ SELL token_amount) × VWAP over the claim window",
+      "holdings_usd": "Smart Money token amount on the claim date × close on the claim date",
+      "label_only_live_usd": "asof_net_usd + live_only_net_usd − asof_only_net_usd",
+      "contamination_usd_share": "live_only_net_usd / live_net_usd",
+      "contamination_wallet_share": "live_only_wallets / live_wallets",
+      "drift_ratio": "current-label measure / as-of measure",
+      "calibration_error": "min over recent settled days of |current-label amount / as-of amount − 1|"
+    },
+    "label_policy": {
+      "label_tier": "tgm_filter",
+      "asof_label_filter": [
+        "Smart Trader",
+        "Smart Dex Trader",
+        "30D Smart Trader",
+        "30D Smart Dex Trader",
+        "90D Smart Trader",
+        "90D Smart Dex Trader",
+        "180D Smart Trader",
+        "180D Smart Dex Trader",
+        "Smart HL Perps Trader"
+      ],
+      "live_label_filter": [
+        "Smart Trader",
+        "30D Smart Trader",
+        "90D Smart Trader",
+        "180D Smart Trader",
+        "Smart HL Perps Trader"
+      ],
+      "fund_included": false,
+      "fund_policy_version": "2026-09-09",
+      "label_alias_policy": "2026-09-24"
+    },
+    "layers": [
+      {
+        "layer": "live_trades",
+        "source": "live_trades",
+        "endpoint": "tgm.dex_trades",
+        "surface": "live",
+        "status": "ok",
+        "payload_ids": [
+          "sha256:cce677da8af7d4785ae741ebdb56dd592cd389577e5ee27728ff1fe1d30233aa"
+        ],
+        "credits_used": 0
+      },
+      {
+        "layer": "asof_trades",
+        "source": "asof_trades",
+        "endpoint": "hist.dex_trades",
+        "surface": "asof",
+        "status": "ok",
+        "payload_ids": [
+          "sha256:b1bfdbaf7801b7abe7295fc886f454299750083bdffef37d5dbc89401cdfb160"
+        ],
+        "credits_used": 0
+      },
+      {
+        "layer": "asof_flow_summary",
+        "source": "asof_flow_summary",
+        "endpoint": "hist.flow_summary",
+        "surface": "asof",
+        "status": "ok",
+        "payload_ids": [
+          "sha256:5fc294e79106d3291c02ba852c6afa663aa0dc9c95e34cf8cf1a064e69a4f075"
+        ],
+        "credits_used": 0
+      },
+      {
+        "layer": "price",
+        "source": "price",
+        "endpoint": "tgm.token_ohlcv",
+        "surface": "meta",
+        "status": "ok",
+        "payload_ids": [
+          "sha256:dcc58bda9274329a1302a7cb4a2cc09b8a064d53b08314c9543a1afe3bb3f5b1"
+        ],
+        "credits_used": 0
+      }
+    ],
+    "payload_hashes": {
+      "live_trades#0": "sha256:cce677da8af7d4785ae741ebdb56dd592cd389577e5ee27728ff1fe1d30233aa",
+      "asof_trades#0": "sha256:b1bfdbaf7801b7abe7295fc886f454299750083bdffef37d5dbc89401cdfb160",
+      "asof_flow_summary#0": "sha256:5fc294e79106d3291c02ba852c6afa663aa0dc9c95e34cf8cf1a064e69a4f075",
+      "price#0": "sha256:dcc58bda9274329a1302a7cb4a2cc09b8a064d53b08314c9543a1afe3bb3f5b1"
+    },
+    "snapshot_fallback_date": null,
+    "row_cap": 3000,
+    "truncated": false,
+    "credits_used": 0,
+    "nansen_base_url": "https://api.nansen.ai",
+    "disclaimer": "THEN does not predict price. VALID means the dated Smart Money cohort supports the claim, not that the trade is good."
+  }
+}
