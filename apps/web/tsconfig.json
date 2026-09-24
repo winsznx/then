@@ -17,5 +17,5 @@
     ".next/dev/types/**/*.ts",
     "../../packages/ui/src/**/*.tsx"
   ],
-  "exclude": ["node_modules", "e2e"]
+  "exclude": ["cloudflare", "dist", "e2e", "node_modules"]
 }

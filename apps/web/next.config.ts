@@ -8,8 +8,9 @@ const envFile = process.env.THEN_ENV_FILE ?? resolve(process.cwd(), '../../.env'
 if (envFile !== 'none' && existsSync(envFile)) process.loadEnvFile(envFile)
 
 const nextConfig: NextConfig = {
-  // A self-contained server for container hosting; tracing starts at the monorepo root.
-  output: 'standalone',
+  // A self-contained server for container hosting; tracing starts at the monorepo root. The
+  // Cloudflare build (vinext, THEN_BUILD_TARGET=cloudflare) produces a Worker instead.
+  ...(process.env.THEN_BUILD_TARGET === 'cloudflare' ? {} : { output: 'standalone' as const }),
   outputFileTracingRoot: resolve(process.cwd(), '../..'),
   poweredByHeader: false,
   reactStrictMode: true,

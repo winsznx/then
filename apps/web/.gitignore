@@ -44,3 +44,9 @@ next-env.d.ts
 /e2e/.state/
 /test-results/
 /playwright-report/
+
+# Cloudflare build output
+/dist/
+/.wrangler/
+/e2e/.worker.env
+/.vinext/

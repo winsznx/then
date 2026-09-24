@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // Cloudflare build output and caches (vinext, wrangler):
+    'dist/**',
+    '.vinext/**',
+    '.wrangler/**',
   ]),
 ])
 
