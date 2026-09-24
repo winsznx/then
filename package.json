@@ -1,0 +1,29 @@
+{
+  "name": "then",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.23.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "then": "tsx --env-file-if-exists=.env apps/cli/src/main.ts",
+    "dev": "pnpm --filter @then/web dev",
+    "build": "pnpm --filter @then/web build && pnpm --filter @then/cli build",
+    "test": "vitest run",
+    "test:live": "THEN_LIVE_TESTS=1 vitest run --project live",
+    "test:e2e": "pnpm --filter @then/web test:e2e",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "26.6.2",
+    "eslint": "10.11.0",
+    "prettier": "3.9.9",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "5.0.1"
+  }
+}
