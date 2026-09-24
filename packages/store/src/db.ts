@@ -164,18 +164,25 @@ const MIGRATIONS: string[] = [
   )`,
 ]
 
-export async function migrate(db: Db): Promise<void> {
+/**
+ * Applies each migration this database has not recorded, one transaction each. Returns how many
+ * ran.
+ */
+export async function migrate(db: Db): Promise<number> {
   await db.query(
     `create table if not exists then_migrations (id integer primary key, applied_at timestamptz not null default now())`,
   )
   const applied = new Set(
     (await db.query<{ id: number }>('select id from then_migrations')).map((row) => Number(row.id)),
   )
+  let ran = 0
   for (const [index, statement] of MIGRATIONS.entries()) {
     if (applied.has(index)) continue
     await db.transaction(async (tx) => {
       await tx.query(statement)
       await tx.query('insert into then_migrations (id) values ($1)', [index])
     })
+    ran += 1
   }
+  return ran
 }

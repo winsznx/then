@@ -1,29 +1,16 @@
 import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
 import { claimFromReceipt, createCase } from '@then/challenge'
 import { isReceiptId, type PublicReceipt } from '@then/core'
 import { parseCorpus, publicCorpusRow, type CorpusRow } from '@then/corpus'
 import { verifyFull, verifyPublic, type ReceiptBundle } from '@then/receipt'
-import { FsReceiptStore, ThenRepository, migrate, pgliteDb, postgresDb, type Db } from '@then/store'
+import { FsReceiptStore, ThenRepository, migrate } from '@then/store'
 import { CliError, EXIT, trustedKeys } from '../config'
-
-/**
- * The database the web app reads: DATABASE_URL when set (hosted), otherwise the embedded store
- * under .then/pglite that `pnpm dev` uses. The embedded store allows one process at a time, so
- * stop the dev server before publishing.
- */
-async function openDb(): Promise<Db> {
-  const url = process.env.DATABASE_URL?.trim()
-  const db = url
-    ? await postgresDb(url)
-    : await pgliteDb(resolve(process.env.THEN_PGLITE_DIR ?? '.then/pglite'))
-  await migrate(db)
-  return db
-}
+import { connectDb } from './db'
 
 async function withRepo<T>(fn: (repo: ThenRepository) => Promise<T>): Promise<T> {
-  const db = await openDb()
+  const db = await connectDb()
   try {
+    await migrate(db)
     return await fn(new ThenRepository(db))
   } finally {
     await db.close()

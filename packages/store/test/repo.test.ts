@@ -31,11 +31,12 @@ function bundle(id = 'P1') {
 describe('migrations', () => {
   it('are idempotent', async () => {
     // #when
-    await migrate(db)
+    const ran = await migrate(db)
     // #then
     const rows = await db.query<{ count: number }>(
       'select count(*)::int as count from then_migrations',
     )
+    expect(ran).toBe(0)
     expect(rows[0]!.count).toBeGreaterThan(10)
   })
 })

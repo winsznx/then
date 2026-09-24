@@ -3,6 +3,7 @@ import { ENDPOINTS } from '@then/nansen'
 import { Command } from 'commander'
 import { ablationCommand } from './commands/ablation'
 import { corpusRunCommand } from './commands/corpus'
+import { migrateCommand } from './commands/db'
 import { fixturesCommand } from './commands/fixtures'
 import { mcpCommand } from './commands/mcp'
 import { reportCommand } from './commands/report'
@@ -160,6 +161,13 @@ publish
   .requiredOption('--rows <file>', 'rows.jsonl of a published corpus run')
   .option('--claims <file>', 'frozen corpus claims', 'eval/corpus/claims.jsonl')
   .action(run(publishChallengeCommand))
+
+program
+  .command('db')
+  .description('Manage the database the web app reads (DATABASE_URL, else .then/pglite)')
+  .command('migrate')
+  .description('Create or update its tables; run before deploying to Cloudflare Workers')
+  .action(run(migrateCommand))
 
 program
   .command('mcp')
