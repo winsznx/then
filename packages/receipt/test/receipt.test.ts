@@ -9,6 +9,7 @@ import {
   buildReceipt,
   compareReceipts,
   generateSigningKey,
+  parseTrustedKeys,
   redistributionFindings,
   signPublic,
   trustedKeyOf,
@@ -278,5 +279,30 @@ describe('verifier independence', () => {
     } finally {
       globalThis.fetch = original
     }
+  })
+})
+
+describe('trusted key configuration', () => {
+  it('accepts role-prefixed keys and treats a bare key as hosted', () => {
+    // Given one local key and one bare key
+    const local = generateSigningKey('local')
+    const hosted = generateSigningKey('hosted')
+    // When the list is parsed
+    const { keys, rejected } = parseTrustedKeys(
+      `local:${local.public_key_hex}, ${hosted.public_key_hex.toUpperCase()}`,
+    )
+    // Then both are trusted under the right roles and ids
+    expect(rejected).toEqual([])
+    expect(keys).toEqual([trustedKeyOf(local), trustedKeyOf(hosted)])
+  })
+
+  it('rejects unknown roles and malformed keys instead of guessing', () => {
+    // Given an invented role and a truncated key
+    const key = generateSigningKey('local').public_key_hex
+    // When the list is parsed
+    const { keys, rejected } = parseTrustedKeys(`corpus:${key},local:${key.slice(0, 20)}`)
+    // Then neither entry is trusted
+    expect(keys).toEqual([])
+    expect(rejected).toHaveLength(2)
   })
 })

@@ -2,7 +2,12 @@ import { ed25519 } from '@noble/curves/ed25519.js'
 import { bytesToHex, hexToBytes, utf8ToBytes } from '@noble/hashes/utils.js'
 import { sha256Hex } from '@then/core'
 
-export type KeyRole = 'hosted' | 'local' | 'fixture'
+export const KEY_ROLES = ['hosted', 'local', 'fixture'] as const
+export type KeyRole = (typeof KEY_ROLES)[number]
+
+export function isKeyRole(value: string): value is KeyRole {
+  return (KEY_ROLES as readonly string[]).includes(value)
+}
 
 export interface SigningKey {
   key_id: string
@@ -34,6 +39,29 @@ export function generateSigningKey(role: KeyRole): SigningKey {
 
 export function trustedKeyOf(key: SigningKey): TrustedKey {
   return { key_id: key.key_id, role: key.role, public_key_hex: key.public_key_hex }
+}
+
+/**
+ * Parses a trusted-key list: "role:hexpublickey" entries separated by commas; a bare key is a
+ * hosted key. Entries with an unknown role or a malformed key are returned as rejected, never
+ * trusted under a guessed role.
+ */
+export function parseTrustedKeys(spec: string): { keys: TrustedKey[]; rejected: string[] } {
+  const keys: TrustedKey[] = []
+  const rejected: string[] = []
+  for (const entry of spec
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)) {
+    const [role, hex] = entry.includes(':') ? entry.split(':', 2) : ['hosted', entry]
+    if (!role || !hex || !isKeyRole(role) || !/^[0-9a-f]{64}$/i.test(hex)) {
+      rejected.push(entry)
+      continue
+    }
+    const publicKeyHex = hex.toLowerCase()
+    keys.push({ key_id: keyIdOf(publicKeyHex), role, public_key_hex: publicKeyHex })
+  }
+  return { keys, rejected }
 }
 
 /**

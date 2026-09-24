@@ -6,10 +6,10 @@ import { NansenClient, type LogEvent, type Logger } from '@then/nansen'
 import {
   FIXTURE_SIGNING_KEY,
   generateSigningKey,
-  keyIdOf,
+  isKeyRole,
+  parseTrustedKeys,
   signingKeyFromSeed,
   trustedKeyOf,
-  type KeyRole,
   type SigningKey,
   type TrustedKey,
 } from '@then/receipt'
@@ -70,8 +70,12 @@ const LOCAL_KEY_PATH = resolve('.then/keys/local-signing-key.hex')
  */
 export async function localSigningKey(): Promise<SigningKey> {
   const seed = process.env.THEN_RECEIPT_SIGNING_KEY?.trim()
-  if (seed)
-    return signingKeyFromSeed(seed, (process.env.THEN_RECEIPT_KEY_ROLE as KeyRole) || 'local')
+  if (seed) {
+    const role = process.env.THEN_RECEIPT_KEY_ROLE?.trim() || 'local'
+    if (!isKeyRole(role) || role === 'fixture')
+      throw new CliError('THEN_RECEIPT_KEY_ROLE must be "hosted" or "local".', EXIT.CONFIG)
+    return signingKeyFromSeed(seed, role)
+  }
   if (existsSync(LOCAL_KEY_PATH))
     return signingKeyFromSeed(await readFile(LOCAL_KEY_PATH, 'utf8'), 'local')
   const key = generateSigningKey('local')
@@ -88,13 +92,50 @@ export async function trustedKeys(): Promise<TrustedKey[]> {
   const keys: TrustedKey[] = [trustedKeyOf(FIXTURE_SIGNING_KEY)]
   if (process.env.THEN_RECEIPT_SIGNING_KEY || existsSync(LOCAL_KEY_PATH))
     keys.push(trustedKeyOf(await localSigningKey()))
-  for (const entry of (process.env.THEN_TRUSTED_RECEIPT_KEYS ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)) {
-    const [role, hex] = entry.includes(':') ? entry.split(':') : ['hosted', entry]
-    if (hex) keys.push({ key_id: keyIdOf(hex), role: role as KeyRole, public_key_hex: hex })
+  const configured = parseTrustedKeys(process.env.THEN_TRUSTED_RECEIPT_KEYS ?? '')
+  if (configured.rejected.length > 0) {
+    throw new CliError(
+      `THEN_TRUSTED_RECEIPT_KEYS has entries that are not "role:hexkey" with role hosted, local, or fixture: ${configured.rejected.join(', ')}`,
+      EXIT.CONFIG,
+    )
   }
+  return [...keys, ...configured.keys]
+}
+
+/**
+ * Keys published by a deployment at /.well-known/then-receipt-keys, read from that URL or from a
+ * saved copy. Each key id is recomputed from its public key, so a list cannot relabel a key.
+ */
+export async function publishedKeys(source: string): Promise<TrustedKey[]> {
+  let text: string
+  try {
+    if (/^https?:\/\//i.test(source)) {
+      const response = await fetch(source, { headers: { accept: 'application/json' } })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      text = await response.text()
+    } else {
+      text = await readFile(source, 'utf8')
+    }
+  } catch (error) {
+    throw new CliError(
+      `cannot read keys from ${source}: ${error instanceof Error ? error.message : 'unreadable'}`,
+      EXIT.CONFIG,
+    )
+  }
+  const listed = (JSON.parse(text) as { keys?: unknown }).keys
+  if (!Array.isArray(listed)) throw new CliError(`${source} has no "keys" list`, EXIT.CONFIG)
+  const spec = listed
+    .map(
+      (key: { role?: unknown; public_key_hex?: unknown }) =>
+        `${String(key.role)}:${String(key.public_key_hex)}`,
+    )
+    .join(',')
+  const { keys, rejected } = parseTrustedKeys(spec)
+  if (rejected.length > 0)
+    throw new CliError(
+      `${source} lists keys THEN cannot trust: ${rejected.join(', ')}`,
+      EXIT.CONFIG,
+    )
   return keys
 }
 

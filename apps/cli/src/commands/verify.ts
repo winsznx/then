@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { isReceiptId } from '@then/core'
 import { verifyFull, verifyPublic } from '@then/receipt'
 import { FsReceiptStore, locateReceipt } from '@then/store'
-import { CliError, EXIT, trustedKeys } from '../config'
+import { CliError, EXIT, publishedKeys, trustedKeys } from '../config'
 import { verifyReportText } from '../print'
 
 async function readJson(path: string): Promise<unknown> {
@@ -19,13 +19,14 @@ async function readJson(path: string): Promise<unknown> {
 /** Public integrity only: works on a downloaded receipt.public.json with no private data. */
 export async function verifyPublicCommand(
   target: string,
-  options: { root: string; allowUnsigned?: boolean },
+  options: { root: string; allowUnsigned?: boolean; keys?: string },
 ): Promise<number> {
   const receipt = isReceiptId(target)
     ? await new FsReceiptStore(options.root).readPublic(target)
     : await readJson(target)
+  const extra = options.keys ? await publishedKeys(options.keys) : []
   const report = verifyPublic(receipt, {
-    trustedKeys: await trustedKeys(),
+    trustedKeys: [...(await trustedKeys()), ...extra],
     requireSignature: !options.allowUnsigned,
   })
   process.stdout.write(`${verifyReportText('verify-public', report)}\n`)

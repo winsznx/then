@@ -58,6 +58,10 @@ program
   )
   .option('--root <dir>', 'receipt directory for bare ids', 'receipts')
   .option('--allow-unsigned', 'accept receipts without a signature')
+  .option(
+    '--keys <url-or-file>',
+    "also trust a deployment's published keys (/.well-known/then-receipt-keys)",
+  )
   .action(run(verifyPublicCommand))
 
 program
