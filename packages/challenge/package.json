@@ -1,0 +1,13 @@
+{
+  "name": "@then/challenge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@then/core": "workspace:*"
+  }
+}
