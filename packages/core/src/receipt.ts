@@ -259,8 +259,12 @@ export interface InternalReceiptBody {
   asof: SideResult
   live: SideResult
   threshold: ThresholdResult
-  window: { from: string; to: string }
+  window: { from: string; to: string; days: number }
   settlement: 'settled' | 'recent' | 'unsettled'
+  surface_available: boolean
+  unavailable_reason: 'UNSUPPORTED_CHAIN' | 'UNSUPPORTED_CLAIM_TYPE' | null
+  /** Recent settled days used to check that the holdings pair agrees; fixed at stamp time. */
+  calibration_window: { from: string; to: string } | null
   summary: InternalSummary
   formulas: Record<string, string>
   label_policy: LabelPolicy
