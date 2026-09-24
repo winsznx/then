@@ -1,3 +1,6 @@
+import { mkdir } from 'node:fs/promises'
+import { dirname } from 'node:path'
+
 /**
  * One SQL dialect everywhere: embedded Postgres (PGlite) for local runs and tests, Postgres when
  * hosted. Callers see a two-method interface and never a driver.
@@ -11,6 +14,8 @@ export interface Db {
 
 export async function pgliteDb(dataDir?: string): Promise<Db> {
   const { PGlite } = await import('@electric-sql/pglite')
+  // PGlite creates its own directory but not missing parents (a fresh clone has no .then/).
+  if (dataDir) await mkdir(dirname(dataDir), { recursive: true })
   const client = dataDir ? await PGlite.create(dataDir) : await PGlite.create()
   const wrap = (runner: { query: typeof client.query }): Db => ({
     async query<T>(text: string, params: readonly unknown[] = []) {
