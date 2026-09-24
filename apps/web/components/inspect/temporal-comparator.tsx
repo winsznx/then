@@ -148,10 +148,13 @@ function Side({
 export function TemporalComparator({
   state,
   headingLevel = 2,
+  showVerdict = true,
   footer,
 }: {
   state: ComparatorState
   headingLevel?: 2 | 3
+  /** The receipt page states the verdict in its own header. */
+  showVerdict?: boolean
   footer?: React.ReactNode
 }) {
   const claim: DisplayClaim = state.kind === 'result' ? state.receipt.claim : state.claim
@@ -191,7 +194,7 @@ export function TemporalComparator({
         />
         <div aria-hidden="true" className="h-[2px] bg-time md:hidden max-md:order-2" />
       </div>
-      <VerdictBand receipt={receipt} />
+      {showVerdict ? <VerdictBand receipt={receipt} /> : null}
       {receipt ? <EvidenceStrip receipt={receipt} /> : null}
       <ReceiptLine receipt={receipt} mode={state.kind === 'result' ? state.mode : null} />
       {footer ? <div className="border-t border-rule">{footer}</div> : null}

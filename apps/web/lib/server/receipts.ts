@@ -1,6 +1,7 @@
 import 'server-only'
-import type { PublicReceipt } from '@then/core'
-import { verifyPublic } from '@then/receipt'
+import { isReceiptId, type PublicReceipt } from '@then/core'
+import { verifyPublic, type DriftReport, type VerifyReport } from '@then/receipt'
+import { cache } from 'react'
 import { getRepo } from './db'
 import { trustedKeys } from './keys'
 import { log } from './nansen'
@@ -8,6 +9,48 @@ import { log } from './nansen'
 export function receiptVerifies(receipt: PublicReceipt): boolean {
   return verifyPublic(receipt, { trustedKeys: trustedKeys() }).ok
 }
+
+export interface RestampEntry {
+  receipt_id: string
+  created_at: string
+  drift: DriftReport
+}
+
+export interface ReceiptView {
+  receipt: PublicReceipt
+  report: VerifyReport
+  /** Later restamps of this receipt, oldest first. */
+  restamps: RestampEntry[]
+  /** When this receipt is itself a restamp: how it differs from the original. */
+  driftFromOriginal: DriftReport | null
+}
+
+/** One receipt with its verification and restamp history. Deduplicated per request. */
+export const loadReceiptView = cache(async (id: string): Promise<ReceiptView | null> => {
+  if (!isReceiptId(id)) return null
+  const repo = await getRepo()
+  const receipt = await repo.getPublicReceipt(id)
+  if (!receipt) return null
+  const toEntry = (row: {
+    restamp_receipt_id: string
+    created_at: string
+    drift: unknown
+  }): RestampEntry => ({
+    receipt_id: row.restamp_receipt_id,
+    created_at: row.created_at,
+    drift: row.drift as DriftReport,
+  })
+  const restamps = (await repo.restampsOf(id)).map(toEntry)
+  const siblings = receipt.restamp_of
+    ? (await repo.restampsOf(receipt.restamp_of)).map(toEntry)
+    : []
+  return {
+    receipt,
+    report: verifyPublic(receipt, { trustedKeys: trustedKeys() }),
+    restamps,
+    driftFromOriginal: siblings.find((entry) => entry.receipt_id === id)?.drift ?? null,
+  }
+})
 
 /**
  * The receipt Inspect offers as a replayed example: the operator's featured receipt, else the

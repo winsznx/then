@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, IBM_Plex_Mono, Instrument_Serif } from 'next/font/google'
+import { connection } from 'next/server'
 import { SiteFooter } from '@/components/site/site-footer'
 import { SiteHeader } from '@/components/site/site-header'
 import { env } from '@/lib/server/env'
@@ -40,7 +41,12 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Every page renders per request: the Content Security Policy carries a fresh script nonce, and a
+ * prerendered page would ship scripts without it.
+ */
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  await connection()
   return (
     <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body className="flex min-h-dvh flex-col">
