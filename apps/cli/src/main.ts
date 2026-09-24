@@ -3,6 +3,11 @@ import { ENDPOINTS } from '@then/nansen'
 import { Command } from 'commander'
 import { ablationCommand } from './commands/ablation'
 import { corpusRunCommand } from './commands/corpus'
+import {
+  publishChallengeCommand,
+  publishCorpusCommand,
+  publishReceiptsCommand,
+} from './commands/publish'
 import { stampCommand } from './commands/stamp'
 import { verifyCommand, verifyPublicCommand } from './commands/verify'
 import { CliError, EXIT, loadDotEnv, localSigningKey, nansenClient } from './config'
@@ -88,6 +93,34 @@ corpus
   .option('--corroborate', 'also read the Smart Trader flow summary (5 credits per trade claim)')
   .option('--verbose', 'log every Nansen call to stderr')
   .action(run(corpusRunCommand))
+
+const publish = program
+  .command('publish')
+  .description(
+    'Load verified receipts into the database the web app reads (DATABASE_URL, else .then/pglite)',
+  )
+publish
+  .command('receipts <ids...>')
+  .description('Verify receipt bundles and publish them')
+  .option('--root <dir>', 'receipt directory', 'receipts')
+  .option('--feature <id>', 'the receipt Inspect offers as its replayed example')
+  .action(run(publishReceiptsCommand))
+publish
+  .command('corpus')
+  .description('Publish a finished corpus run: verified receipts, public rows, and the summary')
+  .requiredOption('--rows <file>', 'rows.jsonl written by "then corpus run"')
+  .requiredOption('--summary <file>', 'summary JSON written by --s0')
+  .requiredOption('--run-id <id>', 'stable id for this run')
+  .requiredOption('--label <text>', 'what the run was')
+  .requiredOption('--method <version>', 'method version the run was stamped under')
+  .option('--root <dir>', 'receipt directory of the run', '.then/corpus/receipts')
+  .action(run(publishCorpusCommand))
+publish
+  .command('challenge')
+  .description('Create Challenge cases from published corpus receipts, quoting each source')
+  .requiredOption('--rows <file>', 'rows.jsonl of a published corpus run')
+  .option('--claims <file>', 'frozen corpus claims', 'eval/corpus/claims.jsonl')
+  .action(run(publishChallengeCommand))
 
 program
   .command('account')
