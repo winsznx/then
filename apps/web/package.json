@@ -10,12 +10,14 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
     "@noble/hashes": "2.4.0",
     "@then/challenge": "workspace:*",
     "@then/core": "workspace:*",
     "@then/corpus": "workspace:*",
     "@then/engine": "workspace:*",
     "@then/intake": "workspace:*",
+    "@then/mcp": "workspace:*",
     "@then/nansen": "workspace:*",
     "@then/receipt": "workspace:*",
     "@then/stamp": "workspace:*",

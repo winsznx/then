@@ -10,11 +10,13 @@
     "build": "tsup src/main.ts --format esm --target node24 --out-dir dist --clean --no-splitting --outExtension.js=.mjs && node -e \"const f='dist/main.mjs';const fs=require('fs');fs.renameSync(f,'dist/then.mjs')\""
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
     "@noble/hashes": "2.4.0",
     "@then/challenge": "workspace:*",
     "@then/core": "workspace:*",
     "@then/corpus": "workspace:*",
     "@then/engine": "workspace:*",
+    "@then/mcp": "workspace:*",
     "@then/nansen": "workspace:*",
     "@then/receipt": "workspace:*",
     "@then/stamp": "workspace:*",

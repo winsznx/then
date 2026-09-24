@@ -3,6 +3,7 @@ import { ENDPOINTS } from '@then/nansen'
 import { Command } from 'commander'
 import { ablationCommand } from './commands/ablation'
 import { corpusRunCommand } from './commands/corpus'
+import { mcpCommand } from './commands/mcp'
 import {
   publishChallengeCommand,
   publishCorpusCommand,
@@ -121,6 +122,12 @@ publish
   .requiredOption('--rows <file>', 'rows.jsonl of a published corpus run')
   .option('--claims <file>', 'frozen corpus claims', 'eval/corpus/claims.jsonl')
   .action(run(publishChallengeCommand))
+
+program
+  .command('mcp')
+  .description('Serve the verdict_smart_money_claim tool to MCP clients over stdio')
+  .option('--out <dir>', 'receipt directory', 'receipts')
+  .action(run(mcpCommand))
 
 program
   .command('account')

@@ -9,7 +9,6 @@ export default defineConfig({
           include: [
             'packages/*/test/**/*.test.ts',
             'apps/cli/test/**/*.test.ts',
-            'apps/mcp/test/**/*.test.ts',
           ],
           exclude: ['**/*.live.test.ts', '**/node_modules/**'],
         },

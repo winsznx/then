@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
     '@then/corpus',
     '@then/engine',
     '@then/intake',
+    '@then/mcp',
     '@then/nansen',
     '@then/receipt',
     '@then/stamp',
