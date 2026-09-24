@@ -1,0 +1,26 @@
+{
+  "name": "@then/cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "then": "./dist/then.mjs"
+  },
+  "scripts": {
+    "build": "tsup src/main.ts --format esm --target node24 --out-dir dist --clean --no-splitting --outExtension.js=.mjs && node -e \"const f='dist/main.mjs';const fs=require('fs');fs.renameSync(f,'dist/then.mjs')\""
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@then/core": "workspace:*",
+    "@then/corpus": "workspace:*",
+    "@then/engine": "workspace:*",
+    "@then/nansen": "workspace:*",
+    "@then/receipt": "workspace:*",
+    "@then/stamp": "workspace:*",
+    "@then/store": "workspace:*",
+    "commander": "15.0.0"
+  },
+  "devDependencies": {
+    "tsup": "8.5.1"
+  }
+}
