@@ -159,10 +159,8 @@ export default async function CorpusPage() {
                 status="TARGET"
               >
                 <p>
-                  {(first.summary.verdicts.CONTAMINATED ?? 0) === 0
-                    ? 'No published receipt is CONTAMINATED yet, so there is nothing to compare.'
-                    : 'Not evaluated on this page until the held-out run completes.'}{' '}
-                  Forward returns are evaluation only; they never feed a verdict.
+                  This forward-return hypothesis is not evaluated on this page. Forward returns are
+                  evaluation only; they never feed a verdict.
                 </p>
               </Target>
             </div>

@@ -211,7 +211,7 @@ export default function MethodPage() {
             <strong>2026-09-24.2</strong>: buy and sell claims use the claim&apos;s minimum. The
             first corpus run showed that comparing one cohort&apos;s net flow with a token&apos;s
             gross volume made true public buy claims on liquid tokens unconfirmable. Holdings keep
-            the volume rule. The revised rule is being tested on corpus claims it has not seen;{' '}
+            the volume rule. The revised rule was tested on the pre-registered held-out claims;{' '}
             <Link href="/corpus">see the evidence page</Link>.
           </li>
         </ul>

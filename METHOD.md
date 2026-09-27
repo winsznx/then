@@ -100,7 +100,7 @@ Three codes stay in the private bundle only: ROW_CAP, PRICE_FALLBACK_ENDPOINT_US
 
 The first corpus run (13 claims, method 2026-09-24) found the two reconstructions recoverable on every claim and 25% or more apart on 10 of 13, yet no support disagreement: every buy claim sat below the threshold on both sides. The threshold compared one cohort's net flow with the token's gross DEX volume. Net Smart Money flow is usually a small fraction of a percent of volume, and public claims cite flows of exactly that size, so the rule could not confirm a true buy claim on any liquid token. It tested whether Smart Money was a large share of the market, which no claim asserts.
 
-The revision judges buy and sell claims against the claim's own minimum and keeps the volume rule for holdings. It was made on that argument, not on re-scored results, and it is being tested on the 27 corpus claims that had not been stamped when it was written. Receipts from the first run keep method 2026-09-24 and still verify under it.
+The revision judges buy and sell claims against the claim's own minimum and keeps the volume rule for holdings. It was made on that argument, not on re-scored results. The pre-registered held-out run then stamped 24 of the remaining 27 claims under method 2026-09-24.2: both reconstructions were complete on 20, and support disagreed on 8 of those 20. The other three claims name an unsupported chain. Receipts from the first run keep method 2026-09-24 and still verify under it. See the [published evidence](https://then.timjosh507.workers.dev/corpus) and [selection rules](eval/corpus/SELECTION.md).
 
 ## Reproducing a verdict
 

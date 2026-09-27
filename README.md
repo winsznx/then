@@ -10,13 +10,19 @@ THEN rebuilds the claim twice, once with today's labels and once with the cohort
 - **CONTAMINATED**: only today's labels support it, and wallets labeled after the date account for the difference.
 - **INSUFFICIENT**: the dated record cannot decide, so THEN does not guess.
 
-Every stamp writes a signed receipt that anyone can check, in the browser or offline.
+THEN is for researchers, writers, and traders checking an old Smart Money claim before citing or acting on it. Every stamp writes a signed receipt that anyone can check, in the browser or offline.
 
-Try it at https://then.timjosh507.workers.dev: replay the stored receipts, verify them in the browser, and play the Challenge. New stamps there pause while the demo's Nansen credits are low.
+Try it at [then.timjosh507.workers.dev](https://then.timjosh507.workers.dev): check a claim against live Nansen data, replay a stored receipt, verify it in the browser, or play the Challenge. The [status page](https://then.timjosh507.workers.dev/status) shows whether new stamps are available; stamping pauses automatically if credits run low.
 
 ![A THEN receipt: today's labels support the claim, the cohort of the day supports it, verdict VALID](docs/images/receipt.png)
 
 THEN does not predict price. VALID means the dated Smart Money cohort supports the claim, not that the trade is good.
+
+## See the result in a minute
+
+1. Open [Inspect](https://then.timjosh507.workers.dev/inspect) and select **Load example**. The stored receipt is clearly marked **REPLAY**.
+2. Select **Stamp** to check that claim against Nansen again. A new result is marked **LIVE STAMP**; if the same claim was stamped recently, THEN reuses its receipt and says so instead of spending credits twice. Check [Status](https://then.timjosh507.workers.dev/status) if stamping is unavailable.
+3. Select **Verify integrity** on the result to check its public signature and decision inputs in your browser. [Evidence](https://then.timjosh507.workers.dev/corpus) shows every claim in the frozen corpus, including insufficient results.
 
 ## Run it in ten minutes
 
@@ -33,7 +39,8 @@ pnpm then stamp --chain solana --token EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65z
   --date 2026-06-12 --claim SM_BOUGHT --symbol WIF
 
 # Recompute that verdict from the stored Nansen responses, with no network
-pnpm then verify receipts/<receipt id>
+# Replace the id with the one printed by the stamp command
+pnpm then verify receipts/rcpt_REPLACE_WITH_ID
 
 # The web app on http://localhost:3000
 pnpm dev
@@ -65,14 +72,14 @@ Each receipt has two layers. The **public receipt** carries the claim, both supp
 - Offline, public receipt only: `pnpm then verify-public rcpt_x.public.json --keys https://<deployment>/.well-known/then-receipt-keys`
 - Offline, with the private bundle: `pnpm then verify <receipt>` recomputes the verdict from the stored responses. `pnpm then ablation <receipt>` removes the point-in-time data and shows the verdict fall to INSUFFICIENT.
 
-## What the corpus shows so far
+## What the corpus shows
 
-Forty public Smart Money claims were chosen and frozen on 24 Sep 2026, before THEN produced any verdict ([selection rules](eval/corpus/SELECTION.md)). Measured so far:
+Forty public Smart Money claims were chosen and frozen on 24 Sep 2026, before THEN produced any verdict ([selection rules](eval/corpus/SELECTION.md)). The published runs show:
 
 - The first run (S0) stamped 13 of the 40 under the first method. Both reconstructions were complete on 13 of 13 and differed by 25% or more on 10 of 13, but they disagreed on support on 0 of 13: under that threshold (2% of the window's DEX volume) no buy claim could reach support on either side.
 - The support rule for buy and sell claims was then revised (method 2026-09-24.2), and a test on the other 27 claims was pre-registered before any of them was stamped.
 - That held-out run: 24 of 27 stamped (3 name a chain Nansen does not cover), both reconstructions complete on 20. The two sides disagreed on support on 8 of 20, and every one changed the verdict: 4 CONTAMINATED, 4 VALID where today's labels say no. Against the full held-out set that is 8 of 27, above the 20% target set before the run.
-- These are 27 public claims chosen by fixed rules, not a sample of all Smart Money posts, so this is not a contamination rate in the wild.
+- These are public claims chosen by fixed rules, not a sample of all Smart Money posts, so this is not a contamination rate in the wild.
 
 Every row and receipt is on the [evidence page](https://then.timjosh507.workers.dev/corpus).
 

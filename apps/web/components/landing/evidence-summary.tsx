@@ -10,7 +10,7 @@ function Stat({ value, label }: { value: string; label: string }) {
   )
 }
 
-/** Measured numbers only, each with its denominator; the held-out run is reported as not yet run. */
+/** Measured numbers only, each with its denominator. */
 export function EvidenceSummary({
   run,
   heldOutRun,
@@ -44,16 +44,16 @@ export function EvidenceSummary({
             />
             <Stat
               value={`${run.summary.claims_tested - run.summary.claims_stamped}`}
-              label="left for the held-out run"
+              label="reserved for the held-out run"
             />
           </div>
           <div className="t-ui mt-10 max-w-[70ch] space-y-3 text-ink-soft">
             <p>
               The labels moved on most claims, but under the first threshold no verdict changed. The
-              method was revised on that finding and is being tested on the claims it has not seen.{' '}
+              method was revised on that finding.{' '}
               {heldOutRun
-                ? 'That run is published on the evidence page.'
-                : 'That run has not happened yet, so no disagreement rate is claimed.'}
+                ? 'The revised rule was tested on claims it had not seen; that held-out run is published on the evidence page.'
+                : 'The held-out test of the revised rule has not happened yet, so no disagreement rate is claimed.'}
             </p>
             <p>
               <Link
