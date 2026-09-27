@@ -44,7 +44,7 @@ export function EvidenceSummary({
             />
             <Stat
               value={`${run.summary.claims_tested - run.summary.claims_stamped}`}
-              label="claims not yet run"
+              label="left for the held-out run"
             />
           </div>
           <div className="t-ui mt-10 max-w-[70ch] space-y-3 text-ink-soft">

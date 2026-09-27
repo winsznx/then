@@ -69,11 +69,10 @@ Each receipt has two layers. The **public receipt** carries the claim, both supp
 
 Forty public Smart Money claims were chosen and frozen on 24 Sep 2026, before THEN produced any verdict ([selection rules](eval/corpus/SELECTION.md)). Measured so far:
 
-- The first run stamped 13 of the 40 before its credit budget ran out; the other 27 were not run for budget reasons only.
-- Both reconstructions were complete on 13 of 13.
-- The two sides differed by 25% or more on 10 of 13.
-- They disagreed on support on 0 of 13, so no verdict changed. Under the threshold used then (2% of the window's DEX volume), neither side of any buy claim could reach support.
-- The support rule for buy and sell claims was revised (method 2026-09-24.2) and is being tested on the 27 claims it has not seen. That run has not happened, so **no disagreement rate is claimed**.
+- The first run (S0) stamped 13 of the 40 under the first method. Both reconstructions were complete on 13 of 13 and differed by 25% or more on 10 of 13, but they disagreed on support on 0 of 13: under that threshold (2% of the window's DEX volume) no buy claim could reach support on either side.
+- The support rule for buy and sell claims was then revised (method 2026-09-24.2), and a test on the other 27 claims was pre-registered before any of them was stamped.
+- That held-out run: 24 of 27 stamped (3 name a chain Nansen does not cover), both reconstructions complete on 20. The two sides disagreed on support on 8 of 20, and every one changed the verdict: 4 CONTAMINATED, 4 VALID where today's labels say no. Against the full held-out set that is 8 of 27, above the 20% target set before the run.
+- These are 27 public claims chosen by fixed rules, not a sample of all Smart Money posts, so this is not a contamination rate in the wild.
 
 Every row and receipt is on the [evidence page](https://then.timjosh507.workers.dev/corpus).
 

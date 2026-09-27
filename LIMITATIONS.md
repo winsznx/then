@@ -38,7 +38,7 @@ Each source reads at most three pages of 1,000 rows, and a stamp stops after 45 
 
 ## Credits
 
-Stamping spends Nansen credits: 3 for a holdings claim and 7 for a buy or sell claim in the first corpus run, plus 5 for the historical lookup behind a possible CONTAMINATED verdict. The hosted app limits stamps per visitor per hour and pauses stamping when its credits run low; stored receipts, verification, and the Challenge keep working. The corpus's held-out run is waiting on credits.
+Stamping spends Nansen credits: 3 for a holdings claim and 7 for a buy or sell claim in the first corpus run, plus 5 for the historical lookup behind a possible CONTAMINATED verdict. The hosted app limits stamps per visitor per hour and pauses stamping when its credits run low; stored receipts, verification, and the Challenge keep working.
 
 ## Redistribution
 
@@ -50,7 +50,7 @@ The default set is the Smart Trader family and Smart HL Perps Trader. Fund walle
 
 ## The corpus is small
 
-Forty claims were frozen; thirteen have been stamped, all under the first method. Nothing on the evidence page is a rate of contamination in the wild, and none is claimed until the held-out run is measured.
+Forty claims were frozen. Thirteen were stamped under the first method and the other 27 under the revised one, as a pre-registered held-out test. 37 were stamped in all; three name a chain Nansen does not cover. These are public claims chosen by fixed rules, so nothing on the evidence page is a rate of contamination in the wild.
 
 ## Trading
 
